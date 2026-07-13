@@ -411,7 +411,7 @@ public class ClientRunner : MonoBehaviour
 
     private void UpdateMovementJoystick()
     {
-	    movementJoystick.gameObject.SetActive((Application.isMobilePlatform || showMovementJoystickOnNonMobilePlatforms)
+	    movementJoystick.gameObject.SetActive((Application.isMobilePlatform || Application.isEditor || showMovementJoystickOnNonMobilePlatforms)
 	                                          && Client.Game != null && Client.Game.Scene is GameScene
 	                                          && UserPreferences.UseMouseOnMobile.CurrentValue == 0);
     }
