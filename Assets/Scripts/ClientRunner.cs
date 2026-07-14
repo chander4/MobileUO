@@ -410,11 +410,24 @@ public class ClientRunner : MonoBehaviour
     }
 
     private void UpdateMovementJoystick()
-    {
-	    movementJoystick.gameObject.SetActive((Application.isMobilePlatform || Application.isEditor || showMovementJoystickOnNonMobilePlatforms)
-	                                          && Client.Game != null && Client.Game.Scene is GameScene
-	                                          && UserPreferences.UseMouseOnMobile.CurrentValue == 0);
-    }
+	{
+		if (movementJoystick == null)
+		{
+			movementJoystick = FindFirstObjectByType<MobileJoystick>(FindObjectsInactive.Include);
+
+			if (movementJoystick == null)
+			{
+				Debug.LogError("MobileJoystick not found!");
+				return;
+			}
+		}
+
+		movementJoystick.gameObject.SetActive(
+			(Application.isMobilePlatform || Application.isEditor || showMovementJoystickOnNonMobilePlatforms)
+			&& Client.Game != null
+			&& Client.Game.Scene is GameScene
+			&& UserPreferences.UseMouseOnMobile.CurrentValue == 0);
+	}
 
     private void ApplyScalingFactor()
     {

@@ -20,10 +20,15 @@ public class MobileJoystick : MonoBehaviour, IDragHandler, IEndDragHandler, IPoi
     private bool blockVerticalInput;
     [SerializeField]
     private bool blockHorizontalInput;
+    [SerializeField]
+    private bool useDynamicJoystick = true;
     
     public Vector2 Input { get; private set; }
     
     private int pointerId = -1;
+
+    private Vector2 originalAnchoredPosition;
+    private bool originalPositionSaved;
     
     public void SetSize(float size)
     {
@@ -45,10 +50,11 @@ public class MobileJoystick : MonoBehaviour, IDragHandler, IEndDragHandler, IPoi
         }
         else
         {
-            var backgroundPosition = background.position;
-            var eventDataPosition = eventData.position;
-            pointerPosition = new Vector2(eventDataPosition.x - backgroundPosition.x, eventDataPosition.y - backgroundPosition.y);
-            pointerPosition /= canvas.scaleFactor;
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                background,
+                eventData.position,
+                eventData.pressEventCamera,
+                out pointerPosition);
         }
 
         var extent = background.rect.size * 0.5f * handleRange;
@@ -79,12 +85,30 @@ public class MobileJoystick : MonoBehaviour, IDragHandler, IEndDragHandler, IPoi
     public void OnPointerDown(PointerEventData eventData)
     {
         if (eventData.pointerEnter != gameObject)
-        {
             return;
+
+        if (useDynamicJoystick)
+        {
+            if (!originalPositionSaved)
+            {
+                originalAnchoredPosition = background.anchoredPosition;
+                originalPositionSaved = true;
+            }
+
+            Vector2 localPoint;
+
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                canvas.transform as RectTransform,
+                eventData.position,
+                eventData.pressEventCamera,
+                out localPoint);
+
+            background.anchoredPosition = localPoint;
+            handle.anchoredPosition = Vector2.zero;
         }
 
         pointerId = eventData.pointerId;
-        
+
         OnDrag(eventData);
     }
 
@@ -101,7 +125,13 @@ public class MobileJoystick : MonoBehaviour, IDragHandler, IEndDragHandler, IPoi
     private void ResetPosition()
     {
         Input = Vector2.zero;
-        handle.position = background.position;
+
+        handle.localPosition = Vector2.zero;
+
+        if (useDynamicJoystick && originalPositionSaved)
+        {
+            background.anchoredPosition = originalAnchoredPosition;
+        }
     }
     
     private void OnEnable()

@@ -90,6 +90,7 @@ public class ZipDownloader : DownloaderBase
         var fileDownloadHandler = new DownloadHandlerFile(filePath) {removeFileOnAbort = true};
         webRequest.downloadHandler = fileDownloadHandler;
         webRequest.SendWebRequest().completed += _ => DownloadFinished(webRequest, fileName);
+        Debug.Log($"Downloading file from {uriString} to {filePath}");
     }
 
     private static string GetFileNameFromUrl(string url)
