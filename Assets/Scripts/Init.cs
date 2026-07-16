@@ -73,6 +73,7 @@ public class Init : MonoBehaviour
         if (string.IsNullOrEmpty(request.downloadHandler.error) == false)
         {
             Debug.LogError(request.downloadHandler.error);
+            Debug.LogError($"Downloading from {request.url}");
             yield break;
         }
         

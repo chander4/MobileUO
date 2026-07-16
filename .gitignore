@@ -10,3 +10,6 @@
 /*.csproj
 /UserSettings/
 *.DS_Store
+*external/ClassicUO/src/*
+*.placeholder
+Assets/Scripts/ClassicUO/src/*

@@ -29,7 +29,7 @@ public class ClientRunner : MonoBehaviour
 	[SerializeField]
 	private bool scaleGameToFitScreen;
 	[SerializeField]
-	private MobileJoystick movementJoystick;
+	private FloatingJoystick movementJoystick;
 	[SerializeField]
 	private bool showMovementJoystickOnNonMobilePlatforms;
 	[SerializeField]
@@ -412,15 +412,7 @@ public class ClientRunner : MonoBehaviour
     private void UpdateMovementJoystick()
 	{
 		if (movementJoystick == null)
-		{
-			movementJoystick = FindFirstObjectByType<MobileJoystick>(FindObjectsInactive.Include);
-
-			if (movementJoystick == null)
-			{
-				Debug.LogError("MobileJoystick not found!");
-				return;
-			}
-		}
+    		return;
 
 		movementJoystick.gameObject.SetActive(
 			(Application.isMobilePlatform || Application.isEditor || showMovementJoystickOnNonMobilePlatforms)

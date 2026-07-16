@@ -11,7 +11,7 @@ public class DownloadState : IState
     public string ResourcePathForFilesToDownload;
     
     public static readonly List<string> NeededUoFileExtensions = new() {".def", ".mul", ".idx", ".uop", ".enu", ".rle", ".txt"};
-    public const string DefaultFileDownloadPort = "8080";
+    public const string DefaultFileDownloadPort = "80";
     
     private readonly DownloadPresenter downloadPresenter;
     
@@ -162,13 +162,35 @@ public class DownloadState : IState
 
     public static Uri GetUri(string serverUrl, int port, string fileName = null)
     {
+        // If the user entered a complete URL (GitHub, Dropbox, etc.),
+        // don't rebuild it or append a port.
+        if (Uri.TryCreate(serverUrl, UriKind.Absolute, out var absoluteUri))
+        {
+            // If a filename is provided, append it to the URL.
+            if (!string.IsNullOrEmpty(fileName))
+            {
+                var builder = new UriBuilder(absoluteUri);
+                var path = builder.Path.TrimEnd('/');
+                builder.Path = $"{path}/{fileName}";
+                return builder.Uri;
+            }
+
+            return absoluteUri;
+        }
+
+        // Legacy behavior for hostnames/IPs
         var httpPort = port == 80;
         var httpsPort = port == 443;
         var defaultPort = httpPort || httpsPort;
         var scheme = httpsPort ? "https" : "http";
-        var serverUrlWithoutHttp = serverUrl.Replace("http://", "");
-        serverUrlWithoutHttp = serverUrlWithoutHttp.Replace("https://", "");
-        var uriBuilder = new UriBuilder(scheme, serverUrlWithoutHttp, defaultPort ? - 1 : port, fileName);
+
+        var uriBuilder = new UriBuilder(
+            scheme,
+            serverUrl,
+            defaultPort ? -1 : port,
+            fileName
+        );
+
         return uriBuilder.Uri;
     }
 

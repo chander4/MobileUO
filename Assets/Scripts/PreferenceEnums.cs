@@ -25,6 +25,13 @@ namespace PreferenceEnums
         Custom = 3
     }
 
+    public enum JoystickModes
+    {
+        Legacy = 0,
+        Fixed = 1,
+        Dynamic = 2
+    }
+
     public enum UseMouseOnMobile
     {
         Off = 0,
