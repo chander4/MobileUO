@@ -7,9 +7,7 @@ public class FloatingJoystick : MonoBehaviour
 
     [SerializeField] private float radius = 80f;
 
-    // Consumed by the movement system (ClientRunner). Serialized so it is
-    // inspector-editable and settable at runtime, mirroring the surface that
-    // MobileJoystick exposed. Values below this magnitude report as no input.
+    // Input magnitude below this value reports as zero.
     [SerializeField] public float deadZone;
 
     public Vector2 Input { get; private set; }
