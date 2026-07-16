@@ -1110,7 +1110,7 @@ MonoBehaviour:
   useGraphicsDrawTexture: 1
   forceEnterWorld: 0
   scaleGameToFitScreen: 1
-  movementJoystick: {fileID: 90313488}
+  movementJoystick: {fileID: 379619593}
   showMovementJoystickOnNonMobilePlatforms: 1
   joystickDeadZoneValues:
   - 0.1
@@ -4982,8 +4982,8 @@ GameObject:
   m_Component:
   - component: {fileID: 879580862}
   - component: {fileID: 879580865}
-  - component: {fileID: 879580864}
   - component: {fileID: 879580863}
+  - component: {fileID: 879580866}
   m_Layer: 5
   m_Name: MobileInputController
   m_TagString: Untagged
@@ -5023,7 +5023,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joystick: {fileID: 379619593}
---- !u!114 &879580864
+--- !u!222 &879580865
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 879580861}
+  m_CullTransparentMesh: 1
+--- !u!114 &879580866
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -5036,7 +5044,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.7686275, g: 0.7686275, b: 0.7686275, a: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.01}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -5053,14 +5061,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!222 &879580865
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 879580861}
-  m_CullTransparentMesh: 1
 --- !u!1 &889634015
 GameObject:
   m_ObjectHideFlags: 0
