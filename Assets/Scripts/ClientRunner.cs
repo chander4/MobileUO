@@ -254,7 +254,7 @@ public class ClientRunner : MonoBehaviour
             deltaTime = 0.050f;
         }
 
-        if (movementJoystick.isActiveAndEnabled && Client.Game.Scene is GameScene gameScene)
+        if (movementJoystick != null && movementJoystick.isActiveAndEnabled && Client.Game.Scene is GameScene gameScene)
         {
 	        gameScene.JoystickInput = new Microsoft.Xna.Framework.Vector2(movementJoystick.Input.x, -1 * movementJoystick.Input.y);
         }
