@@ -2099,6 +2099,8 @@ GameObject:
   - component: {fileID: 379619595}
   - component: {fileID: 379619594}
   - component: {fileID: 379619593}
+  - component: {fileID: 379619598}
+  - component: {fileID: 379619597}
   m_Layer: 5
   m_Name: FloatingJoystick
   m_TagString: Untagged
@@ -2180,6 +2182,32 @@ RectTransform:
   m_AnchoredPosition: {x: -272.22223, y: -88.88889}
   m_SizeDelta: {x: 160, y: 160}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!225 &379619598
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 379619592}
+  m_Enabled: 1
+  m_Alpha: 0.7
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &379619597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 379619592}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a25c8482cd263a42905735c6baeab82, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  floatingJoystick: {fileID: 379619593}
+  canvasGroup: {fileID: 379619598}
 --- !u!1 &380634385
 GameObject:
   m_ObjectHideFlags: 0

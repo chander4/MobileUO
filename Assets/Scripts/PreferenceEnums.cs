@@ -137,4 +137,16 @@ namespace PreferenceEnums
         Off = 0,
         On = 1
     }
+
+    public enum JoystickMode
+    {
+        Floating = 0,
+        Fixed = 1
+    }
+
+    public enum LeftHandedMode
+    {
+        Off = 0,
+        On = 1
+    }
 }

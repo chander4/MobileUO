@@ -37,9 +37,11 @@ public class MenuPresenter : MonoBehaviour
         GetOptionEnumViewInstance().Initialize(typeof(ContainerItemSelection), UserPreferences.ContainerItemSelection, "Container Item Selection", false, false);
         GetOptionEnumViewInstance().Initialize(typeof(UseMouseOnMobile), UserPreferences.UseMouseOnMobile, "Use Mouse", false, false);
         GetOptionEnumViewInstance().Initialize(typeof(DisableTouchscreenKeyboardOnMobile), UserPreferences.DisableTouchscreenKeyboardOnMobile, "Disable Touchscreen Keyboard", false, false);
+        GetOptionEnumViewInstance().Initialize(typeof(JoystickMode), UserPreferences.JoystickMode, "Joystick Mode", false, false);
         GetOptionEnumViewInstance().Initialize(typeof(JoystickSizes), UserPreferences.JoystickSize, "Joystick Size", false, false);
         GetOptionEnumViewInstance().Initialize(typeof(JoystickOpacity), UserPreferences.JoystickOpacity, "Joystick Opacity", false, false);
         GetOptionEnumViewInstance().Initialize(typeof(JoystickDeadZone), UserPreferences.JoystickDeadZone, "Joystick DeadZone", false, false);
+        GetOptionEnumViewInstance().Initialize(typeof(LeftHandedMode), UserPreferences.LeftHandedMode, "Left-Handed Mode", false, false);
         GetOptionEnumViewInstance().Initialize(typeof(JoystickRunThreshold), UserPreferences.JoystickRunThreshold, "Joystick Run Threshold", false, false);
         GetOptionEnumViewInstance().Initialize(typeof(UseLegacyJoystick), UserPreferences.UseLegacyJoystick, "Use Legacy Joystick", false, false);
         GetOptionEnumViewInstance().Initialize(typeof(JoystickCancelsFollow), UserPreferences.JoystickCancelsFollow, "Joystick Cancels Follow", false, false);
