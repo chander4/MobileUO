@@ -46,3 +46,14 @@ MonoBehaviour:
     AllFilesDownloaded: 0
     PreferExternalStorage: 0
     SupportedServer: 1
+  - Name: Local Memento
+    UoServerUrl: 127.0.0.1
+    UoServerPort: 2593
+    FileDownloadServerUrl: 127.0.0.1
+    FileDownloadServerPort: 8080
+    ClientVersion: 7.0.49.27
+    UseEncryption: 0
+    ClientPathForUnityEditor: C:\Ultima-Memento\Client\Data Files
+    AllFilesDownloaded: 1
+    PreferExternalStorage: 0
+    SupportedServer: 1
