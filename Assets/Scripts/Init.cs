@@ -29,7 +29,7 @@ public class Init : MonoBehaviour
     private void Awake()
     {
         ConsoleRedirect.Redirect();
-        
+
         UserPreferences.Initialize();
 
         StateManager.AddState(new BootState());
@@ -58,7 +58,8 @@ public class Init : MonoBehaviour
         }
         
         ServerConfigurationModel.Initialize(supportedServerConfigurationsList);
-        StartCoroutine(FetchUpdatedSupportedServerConfigurations());
+        // Disabled: legacy Dropbox-based config fetch, slated for removal.
+        // StartCoroutine(FetchUpdatedSupportedServerConfigurations());
         
         StateManager.GoToState<BootState>();
         

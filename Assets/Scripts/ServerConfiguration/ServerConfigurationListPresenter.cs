@@ -118,7 +118,7 @@ public class ServerConfigurationListPresenter : MonoBehaviour
             return;
         }
         var configClone = config.Clone();
-        configClone.SupportedServer = true;
+        configClone.SupportedServer = false;
         ServerConfigurationModel.AddServerConfiguration(configClone);
         OnBackButtonClicked();
     }

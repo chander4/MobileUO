@@ -1,9 +1,12 @@
+using System.Linq;
+using PreferenceEnums;
 using UnityEngine;
 using ClassicUO.Game.Scenes;
 
 public class MobileInputController : MonoBehaviour
 {
     [SerializeField] private FloatingJoystick joystick;
+    private CanvasGroup joystickCanvasGroup;
 
     private int activePointerId = -1;
     private UnityEngine.UI.Image image;
@@ -11,6 +14,76 @@ public class MobileInputController : MonoBehaviour
     private void Awake()
     {
         image = GetComponent<UnityEngine.UI.Image>();
+    }
+
+    private void Start()
+    {
+        if (joystick != null)
+        {
+            joystickCanvasGroup = joystick.GetComponent<CanvasGroup>();
+            joystick.Hide();
+        }
+
+        InitializeSettings();
+    }
+
+    private void OnEnable()
+    {
+        if (UserPreferences.JoystickOpacity != null)
+            UserPreferences.JoystickOpacity.ValueChanged += OnOpacityChanged;
+        if (UserPreferences.JoystickDeadZone != null)
+            UserPreferences.JoystickDeadZone.ValueChanged += OnDeadZoneChanged;
+    }
+
+    private void OnDisable()
+    {
+        if (UserPreferences.JoystickOpacity != null)
+            UserPreferences.JoystickOpacity.ValueChanged -= OnOpacityChanged;
+        if (UserPreferences.JoystickDeadZone != null)
+            UserPreferences.JoystickDeadZone.ValueChanged -= OnDeadZoneChanged;
+    }
+
+    private void InitializeSettings()
+    {
+        if (UserPreferences.JoystickOpacity != null)
+            ApplyOpacity();
+        if (UserPreferences.JoystickDeadZone != null)
+            ApplyDeadZone();
+    }
+
+    private void OnOpacityChanged(int value) => ApplyOpacity();
+
+    private void ApplyOpacity()
+    {
+        if (joystickCanvasGroup == null)
+            return;
+
+        var opacityEnum = (JoystickOpacity)UserPreferences.JoystickOpacity.CurrentValue;
+        joystickCanvasGroup.alpha = opacityEnum switch
+        {
+            JoystickOpacity.VeryLow => 0.3f,
+            JoystickOpacity.Low => 0.5f,
+            JoystickOpacity.Normal => 0.7f,
+            JoystickOpacity.High => 1f,
+            _ => 0.7f
+        };
+    }
+
+    private void OnDeadZoneChanged(int value) => ApplyDeadZone();
+
+    private void ApplyDeadZone()
+    {
+        if (joystick == null)
+            return;
+
+        var deadZoneEnum = (JoystickDeadZone)UserPreferences.JoystickDeadZone.CurrentValue;
+        joystick.deadZone = deadZoneEnum switch
+        {
+            JoystickDeadZone.Low => 0.1f,
+            JoystickDeadZone.Medium => 0.2f,
+            JoystickDeadZone.High => 0.3f,
+            _ => 0.1f
+        };
     }
 
     private void Update()
@@ -27,39 +100,47 @@ public class MobileInputController : MonoBehaviour
     {
         var fingers = Lean.Touch.LeanTouch.GetFingers(true, false);
 
-        if (fingers.Count == 0)
+        // Once a finger starts controlling the joystick, keep ownership of it
+        // for the whole gesture (even if it strays into the right half) so a
+        // quick swipe back onto the left half resumes instead of restarting.
+        if (activePointerId != -1)
         {
-            if (activePointerId != -1)
+            var ownedFinger = fingers.FirstOrDefault(f => f.Index == activePointerId);
+            if (ownedFinger == null || ownedFinger.Up)
             {
                 joystick.Hide();
                 activePointerId = -1;
+                return;
+            }
+
+            if (IsPointInLeftHalf(ownedFinger.ScreenPosition))
+            {
+                var localPos = ScreenToJoystickSpace(ownedFinger.ScreenPosition);
+                if (!joystick.gameObject.activeSelf)
+                    joystick.Show(localPos);
+                joystick.Drag(localPos);
+            }
+            else
+            {
+                joystick.Hide();
             }
             return;
         }
 
-        var finger = fingers[0];
-
-        if (finger.Down)
+        foreach (var finger in fingers)
         {
-            if (activePointerId == -1)
+            if (finger.Down && IsPointInLeftHalf(finger.ScreenPosition))
             {
                 activePointerId = finger.Index;
-                var localPos = ScreenToJoystickSpace(finger.ScreenPosition);
-                joystick.Show(localPos);
+                joystick.Show(ScreenToJoystickSpace(finger.ScreenPosition));
+                break;
             }
         }
+    }
 
-        if (activePointerId == finger.Index && finger.Set)
-        {
-            var localPos = ScreenToJoystickSpace(finger.ScreenPosition);
-            joystick.Drag(localPos);
-        }
-
-        if (finger.Up && activePointerId == finger.Index)
-        {
-            joystick.Hide();
-            activePointerId = -1;
-        }
+    private bool IsPointInLeftHalf(Vector2 screenPosition)
+    {
+        return screenPosition.x < Screen.width * 0.5f;
     }
 
     private Vector2 ScreenToJoystickSpace(Vector2 screenPosition)

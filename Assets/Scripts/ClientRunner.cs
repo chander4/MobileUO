@@ -174,7 +174,8 @@ public class ClientRunner : MonoBehaviour
 
 	private void OnJoystickDeadZoneChanged(int currentValue)
 	{
-		movementJoystick.deadZone = joystickDeadZoneValues[currentValue];
+		if (movementJoystick != null)
+			movementJoystick.deadZone = joystickDeadZoneValues[currentValue];
 	}
 
 	private static void OnTargetFrameRateChanged(int frameRate)
@@ -254,9 +255,12 @@ public class ClientRunner : MonoBehaviour
             deltaTime = 0.050f;
         }
 
-        if (movementJoystick != null && movementJoystick.isActiveAndEnabled && Client.Game.Scene is GameScene gameScene)
+        if (Client.Game.Scene is GameScene gameScene)
         {
-	        gameScene.JoystickInput = new Microsoft.Xna.Framework.Vector2(movementJoystick.Input.x, -1 * movementJoystick.Input.y);
+	        var joystickActive = movementJoystick != null && movementJoystick.isActiveAndEnabled;
+	        gameScene.JoystickInput = joystickActive
+		        ? new Microsoft.Xna.Framework.Vector2(movementJoystick.Input.x, -1 * movementJoystick.Input.y)
+		        : Microsoft.Xna.Framework.Vector2.Zero;
         }
 
         var keymod = SDL.SDL_Keymod.KMOD_NONE;
