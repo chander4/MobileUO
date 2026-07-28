@@ -1,0 +1,36 @@
+[codedebrief]
+# Analyze only these folders or files. Paths are relative to the project root where you
+# run CodeDebrief unless absolute; sibling repos such as "../api" are supported.
+# Artifacts still write under output_dir relative to this project root.
+source_roots = [
+  "Assets/Scripts/Hollowmere",
+  "external/ClassicUO/src/Game/Managers/UIManager.cs",
+  "external/ClassicUO/src/Game/Managers/AnchorManager.cs",
+  "external/ClassicUO/src/Game/Managers/TargetManager.cs",
+  "external/ClassicUO/src/Game/Managers/DelayedObjectClickManager.cs",
+  "external/ClassicUO/src/Game/UI/Gumps/AnchorableGump.cs",
+  "external/ClassicUO/src/Game/GameActions.cs",
+  "external/ClassicUO/src/Game/SelectedObject.cs",
+  "external/ClassicUO/src/GameController.cs",
+  "external/ClassicUO/src/Client.cs"
+]
+exclude = []
+exclude_dirs = []
+# Defaults always prune dependency, VCS, cache, temp, and generated directories such as
+# .git, node_modules, venv/.venv, dist/build/out/target, coverage, .next, .turbo,
+# .nx, .svelte-kit, .pytest_cache, .mypy_cache, .ruff_cache, vendor, and codedebrief-out.
+# Add project-specific directories above.
+include_public_functions = true
+max_call_depth = 4
+output_dir = "codedebrief-out"
+self_exclude = true
+
+[codedebrief.entrypoints]
+include = []
+exclude = []
+
+# Named macro-parts of the codebase (otherwise the top-level directory is the scope):
+# [codedebrief.scopes]
+# backend = ["backend/**", "services/**"]
+# frontend = ["frontend/**", "web/**"]
+# edge = ["edge/**", "workers/**"]

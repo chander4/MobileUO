@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "codedebrief": {
+      "command": "codedebrief",
+      "args": [
+        "mcp",
+        "C:\\Users\\chase\\git\\MobileUO2"
+      ]
+    }
+  }
+}
