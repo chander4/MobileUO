@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2eda861bba8ecd46acbace047059a79, type: 3}
+  m_Name: HollowmereTypographyDefault
+  m_EditorClassIdentifier: 
+  header:
+    font: {fileID: 0}
+    fontSize: 32
+    fontStyle: 1
+    lineSpacing: 1
+  subheader:
+    font: {fileID: 0}
+    fontSize: 22
+    fontStyle: 1
+    lineSpacing: 1
+  body:
+    font: {fileID: 0}
+    fontSize: 16
+    fontStyle: 0
+    lineSpacing: 1
+  caption:
+    font: {fileID: 0}
+    fontSize: 12
+    fontStyle: 0
+    lineSpacing: 1
+  button:
+    font: {fileID: 0}
+    fontSize: 16
+    fontStyle: 1
+    lineSpacing: 1
+  tooltip:
+    font: {fileID: 0}
+    fontSize: 12
+    fontStyle: 2
+    lineSpacing: 1

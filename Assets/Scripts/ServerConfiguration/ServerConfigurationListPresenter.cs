@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +10,7 @@ public class ServerConfigurationListPresenter : MonoBehaviour
     [SerializeField] private Button addNewConfigurationButton;
     [SerializeField] private Button supportedServersButton;
     [SerializeField] private Button backButton;
+    [SerializeField] private InputField searchInputField;
 
     public Action AddNewConfigurationButtonClicked;
     public Action<ServerConfiguration> EditButtonClicked;
@@ -20,10 +22,17 @@ public class ServerConfigurationListPresenter : MonoBehaviour
     private void OnEnable()
     {
         serverConfigurationViewInstance.gameObject.SetActive(false);
+        searchInputField.text = "";
         RecreateViews();
         addNewConfigurationButton.onClick.AddListener(OnAddNewConfigurationButtonClicked);
         supportedServersButton.onClick.AddListener(OnSupportedServersClicked);
         backButton.onClick.AddListener(OnBackButtonClicked);
+        searchInputField.onValueChanged.AddListener(OnSearchChanged);
+    }
+
+    private void OnSearchChanged(string value)
+    {
+        RecreateViews();
     }
 
     private void OnBackButtonClicked()
@@ -41,6 +50,7 @@ public class ServerConfigurationListPresenter : MonoBehaviour
     private void OnDisable()
     {
         addNewConfigurationButton.onClick.RemoveAllListeners();
+        searchInputField.onValueChanged.RemoveListener(OnSearchChanged);
         DestroyViews();
     }
 
@@ -68,16 +78,46 @@ public class ServerConfigurationListPresenter : MonoBehaviour
 
     private void CreateServerConfigurationItemViews(List<ServerConfiguration> configs, bool addInsteadOfEdit)
     {
-        configs.ForEach(config =>
+        // Favorites-first sort only makes sense for the user's own saved configs,
+        // not the read-only supported-servers list.
+        var filtered = FilterAndSort(configs, sortFavoritesFirst: addInsteadOfEdit == false);
+
+        // Quick connect: when the user has exactly one saved server, highlight it
+        // as the obvious action. Based on the total count, not a filtered search result.
+        var isQuickConnect = addInsteadOfEdit == false && configs.Count == 1;
+
+        filtered.ForEach(config =>
         {
             var view = Instantiate(serverConfigurationViewInstance.gameObject, serverConfigurationViewInstance.transform.parent).GetComponent<ServerConfigurationListItemView>();
             view.SetServerConfiguration(config);
             view.ShowAddButtonInsteadOfEdit(addInsteadOfEdit);
+            view.SetQuickConnect(isQuickConnect);
             view.SelectCallback = ServerConfigurationListItemSelect;
             view.AddOrEditCallback = ServerConfigurationListItemEdit;
             view.gameObject.SetActive(true);
             viewsCreated.Add(view);
         });
+    }
+
+    private List<ServerConfiguration> FilterAndSort(List<ServerConfiguration> configs, bool sortFavoritesFirst)
+    {
+        var searchTerm = searchInputField.text?.Trim() ?? "";
+        IEnumerable<ServerConfiguration> query = configs;
+
+        if (string.IsNullOrEmpty(searchTerm) == false)
+        {
+            query = query.Where(c =>
+                (c.Name ?? "").IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                (c.UoServerUrl ?? "").IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                (c.Description ?? "").IndexOf(searchTerm, StringComparison.OrdinalIgnoreCase) >= 0);
+        }
+
+        if (sortFavoritesFirst)
+        {
+            query = query.OrderByDescending(c => c.Favorite).ThenBy(c => c.Name, StringComparer.OrdinalIgnoreCase);
+        }
+
+        return query.ToList();
     }
 
     private void DestroyViews()
@@ -106,6 +146,7 @@ public class ServerConfigurationListPresenter : MonoBehaviour
         }
         else
         {
+            ServerConfigurationModel.MarkConnected(config);
             ServerConfigurationModel.ActiveConfiguration = config;
         }
     }

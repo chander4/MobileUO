@@ -41,6 +41,30 @@ public static class ServerConfigurationModel
         return ServerConfigurations.FirstOrDefault(x => x.Name == defaultConfigurationName);
     }
 
+    public static void SetAsDefault(ServerConfiguration config)
+    {
+        PlayerPrefs.SetString(defaultConfigurationNameKey, config.Name);
+        PlayerPrefs.Save();
+        DefaultConfiguration = config;
+    }
+
+    public static bool IsDefault(ServerConfiguration config)
+    {
+        return DefaultConfiguration != null && DefaultConfiguration.Name == config.Name;
+    }
+
+    public static void SetFavorite(ServerConfiguration config, bool favorite)
+    {
+        config.Favorite = favorite;
+        SaveServerConfigurations();
+    }
+
+    public static void MarkConnected(ServerConfiguration config)
+    {
+        config.LastConnected = DateTime.UtcNow.ToString("o");
+        SaveServerConfigurations();
+    }
+
     public static void AddServerConfiguration(ServerConfiguration newConfiguration)
     {
         if (IsServerConfigurationNameValid(newConfiguration.Name) == false)

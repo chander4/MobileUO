@@ -40,10 +40,22 @@ public class ServerConfigurationEditPresenter : MonoBehaviour
     private InputField clientVersionInputField;
 
     [SerializeField]
+    private InputField descriptionInputField;
+
+    [SerializeField]
     private Toggle useEncryptionToggle;
     
     [SerializeField]
     private Toggle useExternalStorageToggle;
+
+    [SerializeField]
+    private Toggle favoriteToggle;
+
+    [SerializeField]
+    private Button setAsDefaultButton;
+
+    [SerializeField]
+    private Text setAsDefaultButtonText;
     
     [SerializeField]
     private GameObject useExternalStorageParent;
@@ -123,9 +135,12 @@ public class ServerConfigurationEditPresenter : MonoBehaviour
         fileDownloadServerUrlInputField.text = serverConfigurationToEdit?.FileDownloadServerUrl ?? "";
         fileDownloadServerPortInputField.text = serverConfigurationToEdit?.FileDownloadServerPort ?? DownloadState.DefaultFileDownloadPort;
         clientVersionInputField.text = serverConfigurationToEdit?.ClientVersion ?? "";
+        descriptionInputField.text = serverConfigurationToEdit?.Description ?? "";
         useEncryptionToggle.isOn = serverConfigurationToEdit?.UseEncryption ?? false;
         useExternalStorageToggle.isOn = serverConfigurationToEdit?.PreferExternalStorage ?? false;
         clientPathForUnityEditorInputField.text = serverConfigurationToEdit?.ClientPathForUnityEditor ?? "";
+        favoriteToggle.isOn = serverConfigurationToEdit?.Favorite ?? false;
+        UpdateSetAsDefaultButton();
         clientPathForUnityEditorParent.SetActive(Application.isMobilePlatform == false);
 
         foreach (var go in gameObjectToDisableForSupportedServers)
@@ -145,6 +160,19 @@ public class ServerConfigurationEditPresenter : MonoBehaviour
         ResetDeleteServerFilesButton();
     }
 
+    private void UpdateSetAsDefaultButton()
+    {
+        var isDefault = serverConfigurationToEdit != null && ServerConfigurationModel.IsDefault(serverConfigurationToEdit);
+        setAsDefaultButtonText.text = isDefault ? "Default Server" : "Set as Default";
+        setAsDefaultButton.interactable = !isDefault;
+    }
+
+    private void OnSetAsDefaultButtonClicked()
+    {
+        ServerConfigurationModel.SetAsDefault(serverConfigurationToEdit);
+        UpdateSetAsDefaultButton();
+    }
+
     private void OnEnable()
     {
         saveButton.onClick.AddListener(OnSaveButtonClicked);
@@ -153,6 +181,7 @@ public class ServerConfigurationEditPresenter : MonoBehaviour
         deleteServerFilesButton.onClick.AddListener(OnDeleteServerFilesButtonClicked);
         markFilesAsDownloadedButton.onClick.AddListener(OnMarkFilesAsDownloadedButtonClicked);
         discoverButton.onClick.AddListener(SearchForDevices);
+        setAsDefaultButton.onClick.AddListener(OnSetAsDefaultButtonClicked);
 
         saveButtonOriginalLocalPosition = saveButtonTransform.localPosition;
     }
@@ -214,7 +243,8 @@ public class ServerConfigurationEditPresenter : MonoBehaviour
         deleteServerConfigurationButton.onClick.RemoveAllListeners();
         deleteServerFilesButton.onClick.RemoveAllListeners();
         markFilesAsDownloadedButton.onClick.RemoveAllListeners();
-        
+        setAsDefaultButton.onClick.RemoveAllListeners();
+
         ResetDeleteServerConfigurationButton();
         ResetDeleteServerFilesButton();
     }
@@ -254,7 +284,9 @@ public class ServerConfigurationEditPresenter : MonoBehaviour
         ServerConfigurationToEdit.UseEncryption = useEncryptionToggle.isOn;
         ServerConfigurationToEdit.PreferExternalStorage = useExternalStorageToggle.isOn;
         ServerConfigurationToEdit.ClientPathForUnityEditor = clientPathForUnityEditorInputField.text;
-        
+        ServerConfigurationToEdit.Favorite = favoriteToggle.isOn;
+        ServerConfigurationToEdit.Description = descriptionInputField.text;
+
         OnConfigurationEditSaved?.Invoke();
     }
 
@@ -314,6 +346,12 @@ public class ServerConfigurationEditPresenter : MonoBehaviour
         if (string.IsNullOrWhiteSpace(uoServerUrl))
         {
             validationError = "UO Server Address cannot be empty.";
+            return false;
+        }
+
+        if (Uri.CheckHostName(uoServerUrl) == UriHostNameType.Unknown)
+        {
+            validationError = "UO Server Address is not a valid hostname or IP address.";
             return false;
         }
 

@@ -7,5 +7,9 @@ EditorBuildSettings:
   m_Scenes:
   - enabled: 1
     path: Assets/Scene.unity
-    guid: 00000000000000000000000000000000
+    guid: 7013600beecfbff488e6a90aafaecd40
+  - enabled: 1
+    path: Assets/Hollowmere/UI/UIShowcase.unity
+    guid: cad566fcdf8037a438493ec16bd55104
   m_configObjects: {}
+  m_UseUCBPForAssetBundles: 0

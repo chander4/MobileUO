@@ -1,7 +1,7 @@
 using System.Linq;
 using PreferenceEnums;
 using UnityEngine;
-using ClassicUO.Game.Scenes;
+using ClassicUO.Game.Managers;
 
 public class MobileInputController : MonoBehaviour
 {
@@ -86,7 +86,7 @@ public class MobileInputController : MonoBehaviour
         };
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         if (image != null)
         {
@@ -129,7 +129,7 @@ public class MobileInputController : MonoBehaviour
 
         foreach (var finger in fingers)
         {
-            if (finger.Down && IsPointInLeftHalf(finger.ScreenPosition))
+            if (finger.Down && IsPointInLeftHalf(finger.ScreenPosition) && UIManager.IsMouseOverWorld)
             {
                 activePointerId = finger.Index;
                 joystick.Show(ScreenToJoystickSpace(finger.ScreenPosition));

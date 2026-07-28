@@ -16,6 +16,9 @@ using ClassicUO.Game.UI.Gumps.Login;
 using Newtonsoft.Json;
 using ClassicUO.Network;
 using Microsoft.Xna.Framework;
+#if ENABLE_INTERNAL_ASSISTANT
+using Assistant;
+#endif
 using SDL2;
 using GameObject = UnityEngine.GameObject;
 using Texture2D = Microsoft.Xna.Framework.Graphics.Texture2D;
@@ -128,7 +131,12 @@ public class ClientRunner : MonoBehaviour
 	private void OnEnableAssistantChanged(int enableAssistantCurrentValue)
 	{
 #if ENABLE_INTERNAL_ASSISTANT
-		if (UserPreferences.EnableAssistant.CurrentValue == (int) PreferenceEnums.EnableAssistant.On && Client.Game != null)
+		if (Client.Game == null)
+		{
+			return;
+		}
+
+		if (UserPreferences.EnableAssistant.CurrentValue == (int) PreferenceEnums.EnableAssistant.On)
 		{
 			if (Plugin.LoadInternalAssistant())
 			{
@@ -139,6 +147,18 @@ public class ClientRunner : MonoBehaviour
 					Plugin.OnConnected();
 				}
 			}
+			else if (Client.Game.Scene is GameScene)
+			{
+				//Plugin was already loaded from an earlier toggle - just reopen the window
+				//instead of re-running the full connect initialization again.
+				UIManager.Add(UOSObjects.Gump);
+			}
+		}
+		else
+		{
+			//LoadInternalAssistant() only ever loads the plugin, never unloads it - closing
+			//the window is the only part of "off" this toggle can actually do.
+			UOSObjects.Gump?.Dispose();
 		}
 #endif
 	}

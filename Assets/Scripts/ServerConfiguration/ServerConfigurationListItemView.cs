@@ -36,4 +36,11 @@ public class ServerConfigurationListItemView : MonoBehaviour
     {
         addOrEditButtonText.text = addInsteadOfEdit ? "Add" : "Edit";
     }
+
+    public void SetQuickConnect(bool isQuickConnect)
+    {
+        var colors = selectButton.colors;
+        colors.normalColor = isQuickConnect ? new Color(0.6f, 1f, 0.6f, 1f) : Color.white;
+        selectButton.colors = colors;
+    }
 }
