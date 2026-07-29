@@ -14,7 +14,8 @@
 *.placeholder
 # Mostly unmodified upstream ClassicUO mirror - ignored to avoid duplicating external/ClassicUO.
 # A few files here are real, MobileUO2-owned overrides though (confirmed: GameScene.cs,
-# GameController.cs, WorldMapGump.cs, SystemChatControl.cs, StbTextBox.cs). Those are tracked
-# via `git add -f` despite this rule - ignore patterns don't un-track a file once it's added.
+# GameController.cs, WorldMapGump.cs, ShopGump.cs, SpellbookGump.cs, SkillGumpAdvanced.cs,
+# SystemChatControl.cs, StbTextBox.cs). Those are tracked via `git add -f` despite this rule -
+# ignore patterns don't un-track a file once it's added.
 Assets/Scripts/ClassicUO/src/*
 /.codedebrief/cache/
