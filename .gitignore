@@ -15,7 +15,15 @@
 # Mostly unmodified upstream ClassicUO mirror - ignored to avoid duplicating external/ClassicUO.
 # A few files here are real, MobileUO2-owned overrides though (confirmed: GameScene.cs,
 # GameController.cs, WorldMapGump.cs, ShopGump.cs, SpellbookGump.cs, SkillGumpAdvanced.cs,
-# SystemChatControl.cs, StbTextBox.cs). Those are tracked via `git add -f` despite this rule -
-# ignore patterns don't un-track a file once it's added.
+# SystemChatControl.cs, StbTextBox.cs, OptionsGump.cs, ScrollArea.cs). Those are tracked via
+# `git add -f` despite this rule - ignore patterns don't un-track a file once it's added.
+# IMPORTANT: never edit a file under this path while it's still a symlink - it writes through
+# into external/ClassicUO (the upstream ClassicUO submodule, not ours to modify). Convert it to
+# a real file here first (rm the symlink, copy the content, git add -f), same as every entry
+# in this list.
 Assets/Scripts/ClassicUO/src/*
 /.codedebrief/cache/
+*.apk
+*.keystore
+MobileUO2_BurstDebugInformation_DoNotShip/
+*.slnx

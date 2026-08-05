@@ -52,7 +52,11 @@ public class ClientRunner : MonoBehaviour
 
 	private int lastScreenWidth;
 	private int lastScreenHeight;
-	
+
+	// Interruption Resilience (#23 Deliverable 1) - pause timestamp used on resume to decide
+	// short vs. long interruption handling. -1 means "not currently paused".
+	private double pauseStartRealtime = -1;
+
 	public Action<string> OnError;
 	public Action OnExiting;
 	public Action<bool> SceneChanged;
@@ -93,6 +97,42 @@ public class ClientRunner : MonoBehaviour
 		{
 			modifierKeyButtonsParent.SetActive(false);
 		}
+	}
+
+	// Deliverable 1 of #23: record pause/resume and log the elapsed gap. No reconnect
+	// behavior wired yet - that's Deliverables 2-4, once these hooks are confirmed to
+	// actually fire with correct timing on-device.
+	private void OnApplicationPause(bool pauseStatus)
+	{
+		if (pauseStatus)
+		{
+			pauseStartRealtime = UnityEngine.Time.realtimeSinceStartupAsDouble;
+			Debug.Log($"ClientRunner: app paused at {pauseStartRealtime:F1}s");
+		}
+		else
+		{
+			LogResume("OnApplicationPause(false)");
+		}
+	}
+
+	private void OnApplicationFocus(bool hasFocus)
+	{
+		if (hasFocus)
+		{
+			LogResume("OnApplicationFocus(true)");
+		}
+	}
+
+	private void LogResume(string source)
+	{
+		if (pauseStartRealtime < 0)
+		{
+			return;
+		}
+
+		double elapsed = UnityEngine.Time.realtimeSinceStartupAsDouble - pauseStartRealtime;
+		pauseStartRealtime = -1;
+		Debug.Log($"ClientRunner: app resumed via {source} after {elapsed:F1}s");
 	}
 
 	private void OnEscButtonClicked()
@@ -369,6 +409,16 @@ public class ClientRunner : MonoBehaviour
 	    //On mobile platform, set this flag to true to prevent the GameCursor from being drawn
 	    Settings.GlobalSettings.RunMouseInASeparateThread = Application.isMobilePlatform;
 
+	    //#23 Interruption Resilience: mobile connections drop far more often than desktop
+	    //(backgrounding, spotty wifi/cellular handoff) - reuse the engine's existing
+	    //reconnect-with-retry-counter loop (LoginScene) instead of leaving players staring
+	    //at a manual "Connection lost" popup every time.
+	    if (Application.isMobilePlatform)
+	    {
+		    Settings.GlobalSettings.Reconnect = true;
+		    Settings.GlobalSettings.ReconnectTime = 3;
+	    }
+
 	    //Some mobile specific overrides need to be done on the Profile but they can only be done once the Profile has been loaded
 	    ProfileManager.ProfileLoaded += OnProfileLoaded;
 
@@ -418,6 +468,12 @@ public class ClientRunner : MonoBehaviour
 	    //ProfileManager.Current.HoldShiftToSplitStack = Application.isMobilePlatform;
 	    //Scale items inside containers by default on mobile (won't have any effect if container scale isn't changed)
 	    ProfileManager.Current.ScaleItemsInsideContainers = Application.isMobilePlatform;
+	    //The always-visible Say text box at the bottom of the screen is an easy
+	    //accidental-tap target during movement/combat on touch, and immediately opens
+	    //the mobile keyboard when hit. Hide it by default on mobile - QuickChatBarBootstrap
+	    //adds an explicit "Chat" trigger button so typing is still one intentional tap away,
+	    //not gone.
+	    ProfileManager.Current.ActivateChatAfterEnter = Application.isMobilePlatform;
 	    OnForceUseXbrChanged(UserPreferences.ForceUseXbr.CurrentValue);
     }
 

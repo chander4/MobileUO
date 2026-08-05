@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using UnityEngine;
 
@@ -29,6 +31,53 @@ namespace Hollowmere.Interaction
         {
             PlayerPrefs.SetInt(key + "X", position.X);
             PlayerPrefs.SetInt(key + "Y", position.Y);
+            PlayerPrefs.Save();
+        }
+
+        public void DeletePosition(string key)
+        {
+            PlayerPrefs.DeleteKey(key + "X");
+            PlayerPrefs.DeleteKey(key + "Y");
+            PlayerPrefs.Save();
+        }
+
+        public bool TryLoadLayout(string key, out ActionBarLayout layout)
+        {
+            if (!PlayerPrefs.HasKey(key + "Layout"))
+            {
+                layout = default;
+                return false;
+            }
+
+            layout = (ActionBarLayout) PlayerPrefs.GetInt(key + "Layout");
+            return true;
+        }
+
+        public void SaveLayout(string key, ActionBarLayout layout)
+        {
+            PlayerPrefs.SetInt(key + "Layout", (int) layout);
+            PlayerPrefs.Save();
+        }
+
+        // Comma-joined - ref IDs ("spell:14", "phrase:Yes") never contain a comma, so
+        // no escaping needed. PlayerPrefs has no native array/list support, matching
+        // the rest of this class's plain-primitive-key convention.
+        public bool TryLoadContents(string key, out IReadOnlyList<string> refIds)
+        {
+            if (!PlayerPrefs.HasKey(key + "Contents"))
+            {
+                refIds = Array.Empty<string>();
+                return false;
+            }
+
+            string raw = PlayerPrefs.GetString(key + "Contents");
+            refIds = string.IsNullOrEmpty(raw) ? Array.Empty<string>() : raw.Split(',');
+            return true;
+        }
+
+        public void SaveContents(string key, IReadOnlyList<string> refIds)
+        {
+            PlayerPrefs.SetString(key + "Contents", string.Join(",", refIds));
             PlayerPrefs.Save();
         }
     }

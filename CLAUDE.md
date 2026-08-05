@@ -35,6 +35,17 @@ Every UI decision should satisfy these principles:
 6. Every animation communicates state.
 7. Performance before visual effects.
 8. Accessibility is a feature, not an afterthought.
+9. Mobile-native UX is the target, not "better than before."
+   Ship the cheap, low-risk win before the expensive one - that's a
+   sequencing rule, not the definition of done. Every change, cheap or
+   expensive, is judged against whether it actually reads as designed
+   for touch, not against whether it's an improvement on what a mouse
+   interaction with bigger hitboxes already gave you. A long streak of
+   individually-safe patches to a desktop paradigm (floating draggable
+   windows, hover tooltips, mouse-emulation input) does not add up to
+   mobile-native UX on its own - if a fix only makes the existing
+   paradigm easier to reach, name what the actual mobile-native version
+   of that interaction would look like, even if it's sequenced later.
 
 # Development Workflow
 

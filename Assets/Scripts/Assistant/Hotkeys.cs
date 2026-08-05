@@ -174,6 +174,11 @@ namespace Assistant
         internal static ReadOnlyDictionary<uint, HotKeyOpts> AllHotKeys => new ReadOnlyDictionary<uint, HotKeyOpts>(_HotKeyContainer);
         private static Dictionary<string, Func<string, bool>> _HotKeyActions = new Dictionary<string, Func<string, bool>>();
 
+        // #22 Universal Action Picker: read-only enumeration of registered action names
+        // (skills, pet commands, misc actions) so a picker can list them without needing
+        // direct access to the backing dictionary. Invocation still goes through PlayFunc.
+        internal static IEnumerable<string> RegisteredActionNames => _HotKeyActions.Keys;
+
         internal static void GetSDLKeyCodes(string hkname, out int key, out int mod)
         {
             if(!string.IsNullOrEmpty(hkname) && _RevHotKeyContainer.TryGetValue(hkname, out uint vkey))

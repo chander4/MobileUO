@@ -29,20 +29,50 @@ namespace Hollowmere.Interaction
     /// </summary>
     internal class ActionButtonGump : AnchorableGump
     {
+        // #22 D5: long-press-to-remove. Gump-land has no LeanTouch/LongPressDetector
+        // (that's Unity UI only - see #21A) - held-duration is checked directly against
+        // ClassicUO's own frame clock, the same source AnchorableGump/Control already use.
+        private const uint LongPressMillis = 500;
+
         private readonly GameActionDefinition definition;
+        private readonly Color normalColor;
+        private readonly Color hoverColor;
         private Texture2D backgroundTexture;
         private Label label;
+        private GumpPic icon;
+        private uint mouseDownTick;
 
-        public ActionButtonGump(GameActionDefinition definition, int x, int y) : this(definition)
+        /// <summary>
+        /// Set by whoever owns this button's lifecycle (ActionBar, for removable
+        /// buttons) to react to a long-press instead of a normal tap. Null means
+        /// long-press does nothing - e.g. the bar's fixed "+"/default buttons.
+        /// </summary>
+        public Action OnLongPress { get; set; }
+
+        /// <summary>
+        /// Exposed so ActionBar can snapshot+rebuild its buttons when switching
+        /// orientation (SetLayout) - the definition itself isn't reconstructible
+        /// from Gump state, so the owning bar needs the original object back.
+        /// </summary>
+        public GameActionDefinition Definition => definition;
+
+        public ActionButtonGump(GameActionDefinition definition, int x, int y, Color? barTint = null) : this(definition, barTint)
         {
             X = x;
             Y = y;
             BuildGump();
         }
 
-        public ActionButtonGump(GameActionDefinition definition) : base(0, 0)
+        public ActionButtonGump(GameActionDefinition definition, Color? barTint = null) : base(0, 0)
         {
             this.definition = definition ?? throw new ArgumentNullException(nameof(definition));
+
+            // Lets two bars (e.g. Main vs QuickChat) read as visually distinct at a
+            // glance without needing a separate always-visible label Gump, which would
+            // need its own dynamic repositioning as rows wrap/grow - a per-button tint
+            // has none of that complexity and survives dragging/wrapping for free.
+            normalColor = barTint ?? new Color(30, 30, 30);
+            hoverColor = barTint.HasValue ? Color.Lerp(barTint.Value, Color.White, 0.35f) : Color.DimGray;
 
             CanMove = true;
             AcceptMouseInput = true;
@@ -60,29 +90,80 @@ namespace Hollowmere.Interaction
             Width = 88;
             Height = 44;
 
-            label = new Label(definition.Label, true, 1001, Width, 255, FontStyle.BlackBorder, TEXT_ALIGN_TYPE.TS_CENTER)
+            // Icon-first when the action has one (spells - see ActionCatalog.GetSpells)
+            // - a real hotbar reads by icon, not by reading text on a 44px-tall button.
+            // Skills/pet commands don't carry an art ID today, so they keep the text
+            // label as a fallback instead of showing nothing.
+            if (definition.IconGraphic.HasValue)
             {
-                X = 0,
-                Width = Width - 10,
-            };
-            label.Y = (Height >> 1) - (label.Height >> 1);
-            Add(label);
+                icon = new GumpPic((Width - 44) >> 1, 0, definition.IconGraphic.Value, 0);
 
-            backgroundTexture = Texture2DCache.GetTexture(new Color(30, 30, 30));
+                // GumpPic.Draw scales to whatever Width/Height are set to, not the source
+                // art's native size - clamp explicitly so a mismatched/large graphic ID
+                // (e.g. a spellbook-page icon instead of a hotbar one) can never blow past
+                // the button's own bounds again.
+                icon.Width = 44;
+                icon.Height = 44;
+
+                Add(icon);
+                SetTooltip(definition.Label);
+            }
+            else
+            {
+                label = new Label(definition.Label, true, 1001, Width, 255, FontStyle.BlackBorder, TEXT_ALIGN_TYPE.TS_CENTER)
+                {
+                    X = 0,
+                    Width = Width - 10,
+                };
+                label.Y = (Height >> 1) - (label.Height >> 1);
+                Add(label);
+            }
+
+            backgroundTexture = Texture2DCache.GetTexture(normalColor);
         }
 
         protected override void OnMouseEnter(int x, int y)
         {
-            label.Hue = definition.IsAvailable ? (ushort) 53 : (ushort) 1001;
-            backgroundTexture = Texture2DCache.GetTexture(Color.DimGray);
+            ushort hue = definition.IsAvailable ? (ushort) 53 : (ushort) 1001;
+
+            if (label != null)
+            {
+                label.Hue = hue;
+            }
+
+            if (icon != null)
+            {
+                icon.Hue = hue;
+            }
+
+            backgroundTexture = Texture2DCache.GetTexture(hoverColor);
             base.OnMouseEnter(x, y);
         }
 
         protected override void OnMouseExit(int x, int y)
         {
-            label.Hue = 1001;
-            backgroundTexture = Texture2DCache.GetTexture(new Color(30, 30, 30));
+            if (label != null)
+            {
+                label.Hue = 1001;
+            }
+
+            if (icon != null)
+            {
+                icon.Hue = 0;
+            }
+
+            backgroundTexture = Texture2DCache.GetTexture(normalColor);
             base.OnMouseExit(x, y);
+        }
+
+        protected override void OnMouseDown(int x, int y, MouseButtonType button)
+        {
+            base.OnMouseDown(x, y, button);
+
+            if (button == MouseButtonType.Left)
+            {
+                mouseDownTick = ClassicUO.Time.Ticks;
+            }
         }
 
         protected override void OnMouseUp(int x, int y, MouseButtonType button)
@@ -91,10 +172,18 @@ namespace Hollowmere.Interaction
 
             Point offset = Mouse.LDroppedOffset;
 
-            if (button == MouseButtonType.Left && Math.Abs(offset.X) < 5 && Math.Abs(offset.Y) < 5)
+            if (button != MouseButtonType.Left || Math.Abs(offset.X) >= 5 || Math.Abs(offset.Y) >= 5)
             {
-                definition.TryExecute();
+                return;
             }
+
+            if (OnLongPress != null && ClassicUO.Time.Ticks - mouseDownTick >= LongPressMillis)
+            {
+                OnLongPress();
+                return;
+            }
+
+            definition.TryExecute();
         }
 
         public override bool Draw(UltimaBatcher2D batcher, int x, int y)
