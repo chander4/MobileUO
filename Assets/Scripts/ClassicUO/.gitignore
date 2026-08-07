@@ -83,6 +83,7 @@ artifacts/
 !src/Game/UI/Controls/StbTextBox.cs.meta
 !src/Game/UI/Controls/WorldViewport.cs.meta
 !src/Game/UI/Gumps/Gump.cs.meta
+!src/Game/UI/Gumps/HealthBarGump.cs.meta
 !src/Game/UI/Gumps/Login/LoginGump.cs.meta
 !src/Game/UI/Gumps/ModernBookGump.cs.meta
 !src/Game/UI/Gumps/OptionsGump.cs.meta
