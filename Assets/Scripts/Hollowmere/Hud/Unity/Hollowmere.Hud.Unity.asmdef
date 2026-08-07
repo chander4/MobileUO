@@ -1,0 +1,16 @@
+{
+  "name": "Hollowmere.Hud.Unity",
+  "rootNamespace": "Hollowmere.Hud.Unity",
+  "references": [
+    "Hollowmere.Hud"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

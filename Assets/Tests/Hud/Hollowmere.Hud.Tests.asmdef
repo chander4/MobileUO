@@ -1,0 +1,21 @@
+{
+  "name": "Hollowmere.Hud.Tests",
+  "rootNamespace": "Hollowmere.Hud.Tests",
+  "references": [
+    "Hollowmere.Hud"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}
