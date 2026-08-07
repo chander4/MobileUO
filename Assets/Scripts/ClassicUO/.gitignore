@@ -51,6 +51,86 @@ artifacts/
 *_i.h
 *.ilk
 *.meta
+# Hollowmere engine baseline: this file is a generic, largely-irrelevant
+# Visual-Studio-project .gitignore template (TFS/NuGet/Silverlight/Paket boilerplate
+# that doesn't apply to this Unity project). Its blanket `*.meta` rule blocks Unity's
+# own .meta files for every intentional Hollowmere Engine override under this
+# directory - negated below for the confirmed engine files (see
+# docs/architecture/ENGINE_MODIFICATIONS.md). This does not track .meta files for
+# untouched symlinked source files - that's a separate, broader pre-existing gap
+# documented alongside this milestone's report, not fixed here.
+!src/CUOEnviroment.cs.meta
+!src/Client.cs.meta
+!src/Configuration/Profile.cs.meta
+!src/Configuration/ProfileManager.cs.meta
+!src/Configuration/Settings.cs.meta
+!src/Game/CircleOfTransparency.cs.meta
+!src/Game/GameCursor.cs.meta
+!src/Game/GameObjects/Land.cs.meta
+!src/Game/Managers/AnimatedStaticsManager.cs.meta
+!src/Game/Managers/AudioManager.cs.meta
+!src/Game/Managers/AuraManager.cs.meta
+!src/Game/Managers/UIManager.cs.meta
+!src/Game/Scenes/GameScene.cs.meta
+!src/Game/Scenes/GameSceneInputHandler.cs.meta
+!src/Game/Scenes/LoginScene.cs.meta
+!src/Game/UI/Controls/Button.cs.meta
+!src/Game/UI/Controls/Checkbox.cs.meta
+!src/Game/UI/Controls/Control.cs.meta
+!src/Game/UI/Controls/HtmlControl.cs.meta
+!src/Game/UI/Controls/ItemGump.cs.meta
+!src/Game/UI/Controls/ScrollArea.cs.meta
+!src/Game/UI/Controls/StbTextBox.cs.meta
+!src/Game/UI/Controls/WorldViewport.cs.meta
+!src/Game/UI/Gumps/Gump.cs.meta
+!src/Game/UI/Gumps/Login/LoginGump.cs.meta
+!src/Game/UI/Gumps/ModernBookGump.cs.meta
+!src/Game/UI/Gumps/OptionsGump.cs.meta
+!src/Game/UI/Gumps/ResizableGump.cs.meta
+!src/Game/UI/Gumps/ShopGump.cs.meta
+!src/Game/UI/Gumps/SkillGumpAdvanced.cs.meta
+!src/Game/UI/Gumps/SpellbookGump.cs.meta
+!src/Game/UI/Gumps/SystemChatControl.cs.meta
+!src/Game/UI/Gumps/WorldMapGump.cs.meta
+!src/Game/UI/Gumps/WorldViewportGump.cs.meta
+!src/Game/World.cs.meta
+!src/GameController.cs.meta
+!src/IO/Audio/Sound.cs.meta
+!src/IO/Audio/UOMusic.cs.meta
+!src/IO/Audio/UOSound.cs.meta
+!src/IO/Resources/AnimDataLoader.cs.meta
+!src/IO/Resources/AnimationsLoader.cs.meta
+!src/IO/Resources/ArtLoader.cs.meta
+!src/IO/Resources/FontsLoader.cs.meta
+!src/IO/Resources/GumpsLoader.cs.meta
+!src/IO/Resources/HuesLoader.cs.meta
+!src/IO/Resources/LightsLoader.cs.meta
+!src/IO/Resources/MapLoader.cs.meta
+!src/IO/Resources/MultiLoader.cs.meta
+!src/IO/Resources/MultiMapLoader.cs.meta
+!src/IO/Resources/ProfessionLoader.cs.meta
+!src/IO/Resources/SkillsLoader.cs.meta
+!src/IO/Resources/SoundsLoader.cs.meta
+!src/IO/Resources/SpeechesLoader.cs.meta
+!src/IO/Resources/TexmapsLoader.cs.meta
+!src/IO/Resources/TileDataLoader.cs.meta
+!src/IO/UOFile.cs.meta
+!src/IO/UOFileLoader.cs.meta
+!src/IO/UOFileManager.cs.meta
+!src/Input/Keyboard.cs.meta
+!src/Network/PacketHandlers.cs.meta
+!src/Network/Plugin.cs.meta
+!src/Renderer/Batcher2D.cs.meta
+!src/Renderer/Fonts.cs.meta
+!src/Renderer/RenderedText.cs.meta
+!src/Renderer/SpriteFont.cs.meta
+!src/Renderer/Texture2DCache.cs.meta
+!src/Renderer/UOTexture.cs.meta
+!src/Renderer/XBREffect.cs.meta
+!src/Utility/Exstentions.cs.meta
+!src/Utility/QueuedPool.cs.meta
+!src/Utility/UnsafeMemoryManager.cs.meta
+!src/Utility/ZLib.cs.meta
 *.obj
 *.pch
 *.pdb

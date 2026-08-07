@@ -1,6 +1,7 @@
 /.idea/
 /.vs/
 /.idea/
+/.vscode/
 /obj/
 /Temp/
 /Library/
@@ -12,16 +13,168 @@
 *.DS_Store
 *external/ClassicUO/src/*
 *.placeholder
-# Mostly unmodified upstream ClassicUO mirror - ignored to avoid duplicating external/ClassicUO.
-# A few files here are real, MobileUO2-owned overrides though (confirmed: GameScene.cs,
-# GameController.cs, WorldMapGump.cs, ShopGump.cs, SpellbookGump.cs, SkillGumpAdvanced.cs,
-# SystemChatControl.cs, StbTextBox.cs, OptionsGump.cs, ScrollArea.cs). Those are tracked via
-# `git add -f` despite this rule - ignore patterns don't un-track a file once it's added.
-# IMPORTANT: never edit a file under this path while it's still a symlink - it writes through
-# into external/ClassicUO (the upstream ClassicUO submodule, not ours to modify). Convert it to
-# a real file here first (rm the symlink, copy the content, git add -f), same as every entry
-# in this list.
-Assets/Scripts/ClassicUO/src/*
+# Mostly unmodified upstream ClassicUO mirror (symlinks into external/ClassicUO) - ignored
+# to avoid duplicating the submodule. The files negated below are real, MobileUO2-owned
+# overrides (regular files, not symlinks) - tracked normally, no `git add -f` needed.
+# IMPORTANT: never edit a file under this path while it's still a symlink - it writes
+# through into external/ClassicUO (the upstream submodule, not ours to modify). Convert it
+# to a real file first (rm the symlink, copy the content), then add a negation line below
+# for both the .cs and its .meta so it stays a normal tracked file going forward.
+#
+# Recursive-ignore-with-explicit-allowlist pattern: `**` ignores the whole tree, the
+# `**/` negation re-opens every directory purely for traversal (a dir being ignored
+# blocks git from ever evaluating rules for anything inside it - the well-known
+# "cannot re-include a file whose parent directory is excluded" gitignore limitation),
+# and only the specific files listed below are actually re-included.
+Assets/Scripts/ClassicUO/src/**
+!Assets/Scripts/ClassicUO/src/**/
+
+!Assets/Scripts/ClassicUO/src/CUOEnviroment.cs
+!Assets/Scripts/ClassicUO/src/CUOEnviroment.cs.meta
+!Assets/Scripts/ClassicUO/src/Client.cs
+!Assets/Scripts/ClassicUO/src/Client.cs.meta
+!Assets/Scripts/ClassicUO/src/Configuration/Profile.cs
+!Assets/Scripts/ClassicUO/src/Configuration/Profile.cs.meta
+!Assets/Scripts/ClassicUO/src/Configuration/ProfileManager.cs
+!Assets/Scripts/ClassicUO/src/Configuration/ProfileManager.cs.meta
+!Assets/Scripts/ClassicUO/src/Configuration/Settings.cs
+!Assets/Scripts/ClassicUO/src/Configuration/Settings.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/CircleOfTransparency.cs
+!Assets/Scripts/ClassicUO/src/Game/CircleOfTransparency.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/GameCursor.cs
+!Assets/Scripts/ClassicUO/src/Game/GameCursor.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/GameObjects/Land.cs
+!Assets/Scripts/ClassicUO/src/Game/GameObjects/Land.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/Managers/AnimatedStaticsManager.cs
+!Assets/Scripts/ClassicUO/src/Game/Managers/AnimatedStaticsManager.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/Managers/AudioManager.cs
+!Assets/Scripts/ClassicUO/src/Game/Managers/AudioManager.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/Managers/AuraManager.cs
+!Assets/Scripts/ClassicUO/src/Game/Managers/AuraManager.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/Managers/UIManager.cs
+!Assets/Scripts/ClassicUO/src/Game/Managers/UIManager.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/Scenes/GameScene.cs
+!Assets/Scripts/ClassicUO/src/Game/Scenes/GameScene.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/Scenes/GameSceneInputHandler.cs
+!Assets/Scripts/ClassicUO/src/Game/Scenes/GameSceneInputHandler.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/Scenes/LoginScene.cs
+!Assets/Scripts/ClassicUO/src/Game/Scenes/LoginScene.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/UI/Controls/Button.cs
+!Assets/Scripts/ClassicUO/src/Game/UI/Controls/Button.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/UI/Controls/Checkbox.cs
+!Assets/Scripts/ClassicUO/src/Game/UI/Controls/Checkbox.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/UI/Controls/Control.cs
+!Assets/Scripts/ClassicUO/src/Game/UI/Controls/Control.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/UI/Controls/HtmlControl.cs
+!Assets/Scripts/ClassicUO/src/Game/UI/Controls/HtmlControl.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/UI/Controls/ItemGump.cs
+!Assets/Scripts/ClassicUO/src/Game/UI/Controls/ItemGump.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/UI/Controls/ScrollArea.cs
+!Assets/Scripts/ClassicUO/src/Game/UI/Controls/ScrollArea.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/UI/Controls/StbTextBox.cs
+!Assets/Scripts/ClassicUO/src/Game/UI/Controls/StbTextBox.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/UI/Controls/WorldViewport.cs
+!Assets/Scripts/ClassicUO/src/Game/UI/Controls/WorldViewport.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/Gump.cs
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/Gump.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/HealthBarGump.cs
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/HealthBarGump.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/Login/LoginGump.cs
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/Login/LoginGump.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/ModernBookGump.cs
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/ModernBookGump.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/OptionsGump.cs
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/OptionsGump.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/ResizableGump.cs
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/ResizableGump.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/ShopGump.cs
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/ShopGump.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/SkillGumpAdvanced.cs
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/SkillGumpAdvanced.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/SpellbookGump.cs
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/SpellbookGump.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/SystemChatControl.cs
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/SystemChatControl.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/WorldMapGump.cs
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/WorldMapGump.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/WorldViewportGump.cs
+!Assets/Scripts/ClassicUO/src/Game/UI/Gumps/WorldViewportGump.cs.meta
+!Assets/Scripts/ClassicUO/src/Game/World.cs
+!Assets/Scripts/ClassicUO/src/Game/World.cs.meta
+!Assets/Scripts/ClassicUO/src/GameController.cs
+!Assets/Scripts/ClassicUO/src/GameController.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/Audio/Sound.cs
+!Assets/Scripts/ClassicUO/src/IO/Audio/Sound.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/Audio/UOMusic.cs
+!Assets/Scripts/ClassicUO/src/IO/Audio/UOMusic.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/Audio/UOSound.cs
+!Assets/Scripts/ClassicUO/src/IO/Audio/UOSound.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/Resources/AnimDataLoader.cs
+!Assets/Scripts/ClassicUO/src/IO/Resources/AnimDataLoader.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/Resources/AnimationsLoader.cs
+!Assets/Scripts/ClassicUO/src/IO/Resources/AnimationsLoader.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/Resources/ArtLoader.cs
+!Assets/Scripts/ClassicUO/src/IO/Resources/ArtLoader.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/Resources/FontsLoader.cs
+!Assets/Scripts/ClassicUO/src/IO/Resources/FontsLoader.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/Resources/GumpsLoader.cs
+!Assets/Scripts/ClassicUO/src/IO/Resources/GumpsLoader.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/Resources/HuesLoader.cs
+!Assets/Scripts/ClassicUO/src/IO/Resources/HuesLoader.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/Resources/LightsLoader.cs
+!Assets/Scripts/ClassicUO/src/IO/Resources/LightsLoader.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/Resources/MapLoader.cs
+!Assets/Scripts/ClassicUO/src/IO/Resources/MapLoader.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/Resources/MultiLoader.cs
+!Assets/Scripts/ClassicUO/src/IO/Resources/MultiLoader.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/Resources/MultiMapLoader.cs
+!Assets/Scripts/ClassicUO/src/IO/Resources/MultiMapLoader.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/Resources/ProfessionLoader.cs
+!Assets/Scripts/ClassicUO/src/IO/Resources/ProfessionLoader.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/Resources/SkillsLoader.cs
+!Assets/Scripts/ClassicUO/src/IO/Resources/SkillsLoader.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/Resources/SoundsLoader.cs
+!Assets/Scripts/ClassicUO/src/IO/Resources/SoundsLoader.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/Resources/SpeechesLoader.cs
+!Assets/Scripts/ClassicUO/src/IO/Resources/SpeechesLoader.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/Resources/TexmapsLoader.cs
+!Assets/Scripts/ClassicUO/src/IO/Resources/TexmapsLoader.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/Resources/TileDataLoader.cs
+!Assets/Scripts/ClassicUO/src/IO/Resources/TileDataLoader.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/UOFile.cs
+!Assets/Scripts/ClassicUO/src/IO/UOFile.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/UOFileLoader.cs
+!Assets/Scripts/ClassicUO/src/IO/UOFileLoader.cs.meta
+!Assets/Scripts/ClassicUO/src/IO/UOFileManager.cs
+!Assets/Scripts/ClassicUO/src/IO/UOFileManager.cs.meta
+!Assets/Scripts/ClassicUO/src/Input/Keyboard.cs
+!Assets/Scripts/ClassicUO/src/Input/Keyboard.cs.meta
+!Assets/Scripts/ClassicUO/src/Network/PacketHandlers.cs
+!Assets/Scripts/ClassicUO/src/Network/PacketHandlers.cs.meta
+!Assets/Scripts/ClassicUO/src/Network/Plugin.cs
+!Assets/Scripts/ClassicUO/src/Network/Plugin.cs.meta
+!Assets/Scripts/ClassicUO/src/Renderer/Batcher2D.cs
+!Assets/Scripts/ClassicUO/src/Renderer/Batcher2D.cs.meta
+!Assets/Scripts/ClassicUO/src/Renderer/Fonts.cs
+!Assets/Scripts/ClassicUO/src/Renderer/Fonts.cs.meta
+!Assets/Scripts/ClassicUO/src/Renderer/RenderedText.cs
+!Assets/Scripts/ClassicUO/src/Renderer/RenderedText.cs.meta
+!Assets/Scripts/ClassicUO/src/Renderer/SpriteFont.cs
+!Assets/Scripts/ClassicUO/src/Renderer/SpriteFont.cs.meta
+!Assets/Scripts/ClassicUO/src/Renderer/Texture2DCache.cs
+!Assets/Scripts/ClassicUO/src/Renderer/Texture2DCache.cs.meta
+!Assets/Scripts/ClassicUO/src/Renderer/UOTexture.cs
+!Assets/Scripts/ClassicUO/src/Renderer/UOTexture.cs.meta
+!Assets/Scripts/ClassicUO/src/Renderer/XBREffect.cs
+!Assets/Scripts/ClassicUO/src/Renderer/XBREffect.cs.meta
+!Assets/Scripts/ClassicUO/src/Utility/Exstentions.cs
+!Assets/Scripts/ClassicUO/src/Utility/Exstentions.cs.meta
+!Assets/Scripts/ClassicUO/src/Utility/QueuedPool.cs
+!Assets/Scripts/ClassicUO/src/Utility/QueuedPool.cs.meta
+!Assets/Scripts/ClassicUO/src/Utility/UnsafeMemoryManager.cs
+!Assets/Scripts/ClassicUO/src/Utility/UnsafeMemoryManager.cs.meta
+!Assets/Scripts/ClassicUO/src/Utility/ZLib.cs
+!Assets/Scripts/ClassicUO/src/Utility/ZLib.cs.meta
 /.codedebrief/cache/
 *.apk
 *.keystore
