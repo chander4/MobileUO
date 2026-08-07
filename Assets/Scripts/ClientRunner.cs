@@ -474,6 +474,14 @@ public class ClientRunner : MonoBehaviour
 	    //adds an explicit "Chat" trigger button so typing is still one intentional tap away,
 	    //not gone.
 	    ProfileManager.Current.ActivateChatAfterEnter = Application.isMobilePlatform;
+	    //#24: the server-driven NPC popup menu (Talk/Buy/Sell/Bank/...) fires
+	    //automatically on selection unless HoldShiftForContext is set, gated on a
+	    //shift key that doesn't exist on touch - so on mobile it fires unconditionally
+	    //every time an NPC is selected, stealing focus from the Primary Action button
+	    //(its "Talk" sends a plain DoubleClick, which the already-open popup swallows)
+	    //and visually overlapping the NPC's name label. HoldShiftForContext=true makes
+	    //it require a shift that touch never provides, i.e. suppresses it entirely.
+	    ProfileManager.Current.HoldShiftForContext = Application.isMobilePlatform;
 	    OnForceUseXbrChanged(UserPreferences.ForceUseXbr.CurrentValue);
     }
 

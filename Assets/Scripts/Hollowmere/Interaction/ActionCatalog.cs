@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ClassicUO.Game;
 using ClassicUO.Game.Data;
+using ClassicUO.Game.GameObjects;
 
 namespace Hollowmere.Interaction
 {
@@ -10,7 +11,13 @@ namespace Hollowmere.Interaction
         Spells,
         Skills,
         PetCommands,
-        Macros
+        Macros,
+
+        // Genuine gameplay actions that don't fit the above (Loot Corpse) - not the
+        // same thing as the dev/settings-only "Reset Action Bars" entry that was
+        // deliberately removed from the picker and moved to Options instead. This
+        // category is for things a player actually does mid-combat/mid-loop.
+        Utility
     }
 
     public struct CatalogEntry
@@ -131,9 +138,55 @@ namespace Hollowmere.Interaction
             }
         }
 
+        // Loots via GameActions.GrabItem (native, same call the "grab bag" preference
+        // already drives) against whatever corpse the player last selected -
+        // SelectedObject.LastObject is already set to the corpse by the engine's own
+        // GridLootGump/ContainerGump when its loot window opens (GridLootGump.cs:308),
+        // so this needs no new tracking or hooks into those Gumps. Matches the same
+        // "act on whatever you last touched" pattern Target Last already uses.
+        public static IEnumerable<CatalogEntry> GetUtilityActions()
+        {
+            yield return new CatalogEntry
+            {
+                Category = ActionCategory.Utility,
+                Definition = new GameActionDefinition(
+                    "Loot Corpse",
+                    LootLastCorpse,
+                    canExecute: () => TryGetLootableCorpse(out _),
+                    tooltip: "Grabs everything from the corpse you last opened/selected",
+                    catalogRefId: "utility:lootcorpse")
+            };
+        }
+
+        private static bool TryGetLootableCorpse(out Item corpse)
+        {
+            corpse = SelectedObject.LastObject as Item;
+            return corpse != null && corpse.IsCorpse && !corpse.IsDestroyed;
+        }
+
+        private static void LootLastCorpse()
+        {
+            if (TryGetLootableCorpse(out Item corpse))
+            {
+                LootCorpse(corpse);
+            }
+        }
+
+        // Shared with #24's PrimaryActionDefinitionFactory, which already has a
+        // specific corpse Item (from PrimaryAction.Target) rather than needing to
+        // look one up via SelectedObject - same GrabItem loop either way.
+        public static void LootCorpse(Item corpse)
+        {
+            for (LinkedObject i = corpse.Items; i != null; i = i.Next)
+            {
+                Item item = (Item) i;
+                GameActions.GrabItem(item.Serial, item.Amount);
+            }
+        }
+
         public static IEnumerable<CatalogEntry> GetAll()
         {
-            return GetSpells().Concat(GetSkills()).Concat(GetPetCommands());
+            return GetSpells().Concat(GetSkills()).Concat(GetPetCommands()).Concat(GetUtilityActions());
         }
 
         // #22 D4: re-resolves a persisted CatalogRefId back to a live CatalogEntry on
