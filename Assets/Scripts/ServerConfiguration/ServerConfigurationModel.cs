@@ -10,8 +10,8 @@ public static class ServerConfigurationModel
     private const string serverConfigurationsKey = "server_configurations";
     private const string defaultConfigurationNameKey = "default_server_configuration";
 
-    public static List<ServerConfiguration> ServerConfigurations;
-    public static List<ServerConfiguration> SupportedServerConfigurations;
+    public static List<ServerConfiguration> ServerConfigurations = new List<ServerConfiguration>();
+    public static List<ServerConfiguration> SupportedServerConfigurations = new List<ServerConfiguration>();
     
     private static ServerConfiguration activeConfiguration;
     public static ServerConfiguration ActiveConfiguration
