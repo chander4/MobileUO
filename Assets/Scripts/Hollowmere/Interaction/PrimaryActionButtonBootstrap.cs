@@ -26,6 +26,8 @@ namespace Hollowmere.Interaction
     /// icon cluster - the button rendered fine there but silently never received a
     /// single touch event (confirmed via logcat: zero OnMouseDown/OnMouseUp ever
     /// fired), because that screen region was already claimed by other UI chrome.
+    ///
+    /// Superseded by <see cref="Hollowmere.HudRuntime.HudWidgetHostComposition"/> (Issue #26).
     /// </summary>
     internal static class PrimaryActionButtonBootstrap
     {
@@ -33,8 +35,9 @@ namespace Hollowmere.Interaction
         private const int RightMargin = 100;
         private const int ButtonWidth = 88;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void Install()
+        // Issue #26: Primary Action is hosted by HudWidgetHost + PrimaryActionPresenter.
+        // [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void InstallDisabled()
         {
             var go = new UnityEngine.GameObject("HollowmerePrimaryActionButtonBootstrap");
             Object.DontDestroyOnLoad(go);
