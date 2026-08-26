@@ -32,6 +32,7 @@ public class Init : MonoBehaviour
 
         UserPreferences.Initialize();
 
+        StateManager.Reset();
         StateManager.AddState(new BootState());
         StateManager.AddState(new ServerConfigurationState(serverConfigurationUiParent));
         StateManager.AddState(new DownloadState(downloadPresenter));

@@ -18,4 +18,14 @@ public class StateManager
     {
         states.Add(state);
     }
+
+    // Discards bookkeeping from a prior bootstrap so a fresh Init.Awake() (e.g. after a
+    // scene reload) never retains a currentState/states entry from the destroyed scene.
+    // Without this, GoToState()'s currentState?.Exit() call touches a state wrapping a
+    // destroyed GameObject from the previous scene instance.
+    public static void Reset()
+    {
+        currentState = null;
+        states.Clear();
+    }
 }
