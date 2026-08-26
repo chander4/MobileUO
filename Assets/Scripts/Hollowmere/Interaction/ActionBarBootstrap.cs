@@ -24,6 +24,11 @@ namespace Hollowmere.Interaction
         // first login) - same lifetime as the private `bar` field it mirrors.
         internal static ActionBar Current { get; private set; }
 
+        internal static void SetCurrent(ActionBar bar)
+        {
+            Current = bar;
+        }
+
         // Dock to the bottom-RIGHT, not left: LeftTouchZone/FloatingJoystick own the
         // left half of the screen for movement, so a left-docked action bar sits right
         // under the player's movement thumb and is hard to hit mid-combat. Right thumb
@@ -45,8 +50,9 @@ namespace Hollowmere.Interaction
         // (wider screens) naturally get more columns per row than phones.
         private const float MaxRowWidthFraction = 0.45f;
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void Install()
+        // Issue #27: main Action Bar is hosted by HudWidgetHost + ActionBarPresenter.
+        // [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void InstallDisabled()
         {
             var go = new GameObject("HollowmereActionBarBootstrap");
             Object.DontDestroyOnLoad(go);

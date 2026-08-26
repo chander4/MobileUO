@@ -268,5 +268,37 @@ namespace Hollowmere.Interaction
                 persistence.SavePosition(persistenceKey, currentPosition);
             }
         }
+
+        /// <summary>
+        /// Moves the bar's anchor (first button) and its anchored siblings together.
+        /// Used by the HUD presenter when layout geometry changes; internal
+        /// AnchorManager grouping is unchanged.
+        /// </summary>
+        public void RelocateOrigin(int x, int y)
+        {
+            if (buttons.Count == 0)
+            {
+                origin = new Point(x, y);
+                return;
+            }
+
+            ActionButtonGump anchor = buttons[0];
+            int deltaX = x - anchor.X;
+            int deltaY = y - anchor.Y;
+
+            if (deltaX == 0 && deltaY == 0)
+            {
+                return;
+            }
+
+            foreach (ActionButtonGump button in buttons)
+            {
+                button.X += deltaX;
+                button.Y += deltaY;
+            }
+
+            origin = new Point(x, y);
+            lastPersistedPosition = origin;
+        }
     }
 }
