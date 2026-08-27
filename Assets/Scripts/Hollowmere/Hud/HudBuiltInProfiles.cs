@@ -24,6 +24,9 @@ namespace Hollowmere.Hud
         private const int VitalsLeftMargin = 16;
         private const int VitalsTopMargin = 16;
 
+        private const int StatsLeftMargin = 16;
+        private const int StatsBottomMargin = 16;
+
         public static HudLayoutProfile CreateDefault()
         {
             var profile = new HudLayoutProfile
@@ -49,7 +52,8 @@ namespace Hollowmere.Hud
                 {
                     CreateVitalsDefaultState(),
                     CreatePrimaryActionDefaultState(),
-                    CreateActionBarDefaultState()
+                    CreateActionBarDefaultState(),
+                    CreateStatsDefaultState()
                 }
             };
         }
@@ -114,6 +118,28 @@ namespace Hollowmere.Hud
                     LogicalOffset = new HudPoint(
                         -(ActionBarRightMargin + ActionBarButtonWidth) / 10d,
                         -(ActionBarBottomMargin + ActionBarButtonHeight) / 10d),
+                    Scale = 1
+                }
+            };
+        }
+
+        /// <summary>
+        /// Bottom-left, the one corner not already used by Vitals (top-left),
+        /// Primary Action (top-right), or Action Bar (bottom-right).
+        /// </summary>
+        internal static HudWidgetState CreateStatsDefaultState()
+        {
+            return new HudWidgetState
+            {
+                WidgetId = HudWidgetIds.Stats,
+                IsVisible = true,
+                Placement = new HudPlacement
+                {
+                    Anchor = new HudPoint(0, 1),
+                    Pivot = new HudPoint(0, 1),
+                    LogicalOffset = new HudPoint(
+                        StatsLeftMargin / 10d,
+                        -StatsBottomMargin / 10d),
                     Scale = 1
                 }
             };

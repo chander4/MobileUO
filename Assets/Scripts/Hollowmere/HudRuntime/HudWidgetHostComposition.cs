@@ -43,6 +43,10 @@ namespace Hollowmere.HudRuntime
                     HudWidgetIds.Vitals,
                     HudWidgetRendererKind.Gump,
                     HudWidgetCapabilities.Movable | HudWidgetCapabilities.Hideable));
+                registry.Register(new HudWidgetDefinition(
+                    HudWidgetIds.Stats,
+                    HudWidgetRendererKind.Gump,
+                    HudWidgetCapabilities.Movable | HudWidgetCapabilities.Hideable));
 
                 var presenterRegistry = new HudWidgetPresenterRegistry();
                 presenterRegistry.Register(
@@ -54,6 +58,9 @@ namespace Hollowmere.HudRuntime
                 presenterRegistry.Register(
                     HudWidgetIds.Vitals,
                     definition => new VitalsPresenter(definition));
+                presenterRegistry.Register(
+                    HudWidgetIds.Stats,
+                    definition => new StatsPresenter(definition));
 
                 registry.Validate();
 

@@ -47,10 +47,11 @@ namespace Hollowmere.Hud.Tests
                 new HudLayoutViewport(HudOrientation.Landscape, HudDeviceClass.Phone),
                 builtIn);
 
-            Assert.That(resolution.WidgetStates.Count, Is.EqualTo(3));
+            Assert.That(resolution.WidgetStates.Count, Is.EqualTo(4));
             Assert.That(resolution.WidgetStates[0].WidgetId, Is.EqualTo(HudWidgetIds.Vitals));
             Assert.That(resolution.WidgetStates[1].WidgetId, Is.EqualTo(HudWidgetIds.PrimaryAction));
             Assert.That(resolution.WidgetStates[2].WidgetId, Is.EqualTo(HudWidgetIds.ActionBar));
+            Assert.That(resolution.WidgetStates[3].WidgetId, Is.EqualTo(HudWidgetIds.Stats));
         }
 
         [Test]
