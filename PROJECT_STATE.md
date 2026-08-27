@@ -6,7 +6,9 @@ convenient," as part of the milestone's own documentation step (see
 `git log`, but trust it more than a training-data assumption or a prior
 conversation's memory.
 
-Last updated: Issue #25A — HUD layout contract foundation (committed).
+Last updated: Issue #28A — PlayMode HUD smoke infrastructure (`e4397f6`, committed).
+Implementation/commit status is not the same as full validation — see
+"Validation status" below before assuming any HUD milestone is fully proven.
 
 ## Current release
 
@@ -40,26 +42,41 @@ established.
   fixed, full architecture documentation written (see below).
 - **Issue #25A** — HUD layout contract foundation (renderer-neutral registry,
   versioned profile model, placement math, `IHudLayoutStorage` + PlayerPrefs
-  adapter). **21+ EditMode tests** in `Hollowmere.Hud.Tests` (registry, profile,
-  placement, storage contract, migration fixtures). **No runtime HUD wiring** —
-  zero visible gameplay change. Architecture: `ADR-008`,
-  `docs/architecture/HUD_WIDGET_ARCHITECTURE.md`.
+  adapter). **23 EditMode tests** in `Hollowmere.Hud.Tests`. No runtime HUD wiring.
+- **Issue #25B** — `HudLayoutService`, `HudWidgetHost`, composition bootstrap.
+- **Issue #26** — `IHudWidgetPresenter`, presenter registry, Primary Action migration.
+- **Issue #27** — Action Bar migration (`ActionBarPresenter`, `hollowmere.action-bar`).
+- **Issue #28A** — PlayMode smoke-test harness (`HudRuntimeSmoke`): implemented
+  and committed (`e4397f6`). `HudHost_Initializes` and `Hud_Presenters_Created`
+  have passed; `Hud_NoDuplicateWidgets` and `Hud_NoDuplicates_AfterReload` are
+  not established as passing. **Not a verified 4/4 PlayMode pass** — see
+  "Validation status."
+- **Issue #29** — Player vitals (`VitalsPresenter`, `hollowmere.vitals`, top-left default).
+- **Fix (`ee89109`)** — StateManager scene-reload `MissingReferenceException`,
+  reproduced by #28A's `Hud_NoDuplicates_AfterReload` test; fixed via
+  `StateManager.Reset()` called first in `Init.Awake()`.
 
-## Current architecture
+**HUD runtime:** `HudWidgetHostComposition` + `HudRuntime/Gumps/*` presenters.
 
-Layered: ClassicUO (vendor submodule, untouched) → Hollowmere Engine (73
-tracked override files: rendering, input, networking, asset loading, mobile
-runtime, UI runtime) → Gameplay (`Assets/Scripts/Hollowmere/*`) → Presentation
-(Unity scenes/prefabs, the `HollowmereUI` theme system).
+## Validation status
 
-**HUD foundation (Issue #25A, not yet live in scenes):** `Assets/Scripts/Hollowmere/Hud/`
-— `HudWidgetRegistry`, `HudLayoutProfile` / variants / widget state & settings,
-`HudPlacementMath`, `IHudLayoutStorage`, `Hollowmere.Hud.Unity` for local
-persistence. Host, edit mode, and widget presenters are **not** implemented.
+- **EditMode:** `Hollowmere.Hud.Tests` — 39/39 passed, 0 failed, 0 skipped
+  (latest confirmed run).
+- **PlayMode:** `Hollowmere.HudRuntime.Tests` discovery confirmed (asmdef
+  `includePlatforms: []`, correctly enumerated as PlayMode).
+  - `HudHost_Initializes` — passed.
+  - `Hud_Presenters_Created` — passed in a favorable in-game run.
+  - `Hud_NoDuplicateWidgets` — not established as passing.
+  - `Hud_NoDuplicates_AfterReload` — not established as passing.
+  - Clean continuous 4/4 PlayMode validation remains outstanding.
 
-Full detail: `docs/architecture/HOLLOWMERE_ENGINE.md`. HUD widget system:
-`docs/architecture/HUD_WIDGET_ARCHITECTURE.md`. Layer-ownership table:
-`docs/architecture/ENGINE_STRUCTURE.md`.
+## Current development priorities
+
+Migrate additional widgets or edit mode — not HUD foundation redesign.
+
+## Next milestone
+
+Planning: joystick/Unity widget adapter (per architecture) or edit mode.
 
 ## Current engine philosophy
 
@@ -80,6 +97,12 @@ by size/role heuristics, never actually read).
   deliberately deferred, not resolved.
 - `README.md` is still the original upstream MobileUO README — does not
   reflect Hollowmere's identity.
+- **`ClientRunner`/`UnityMainThreadDispatcher` scene-reload lifecycle
+  exception — open, unresolved.** Exposed by #28A's `Hud_NoDuplicates_AfterReload`
+  test after `ee89109` fixed the earlier StateManager failure and let the
+  reload path progress further. Root cause not yet confirmed. `ClientRunner`
+  is a Protected system (see `CLAUDE.md`) — requires explicit approval before
+  investigation or modification.
 
 ## Known architectural debt
 
@@ -89,9 +112,9 @@ by size/role heuristics, never actually read).
   doesn't fully resolve it — flagged there as needing a decision before either
   of those milestones starts.
 - **Automated tests are limited to the HUD foundation.** `Hollowmere.Hud.Tests`
-  (EditMode) covers registry, profiles, placement math, storage contract, and
-  migration fixtures. No CI gate yet; gameplay/engine stacks remain manually
-  validated.
+  (EditMode) covers registry, profiles, placement math, storage, migration,
+  layout service, variant fallback, and host. No CI gate yet; gameplay/engine
+  stacks remain manually validated.
 - **The Primary Action pipeline's reusability is unproven.** ADR-003's
   four-stage separation is designed for reuse by a second consumer that
   doesn't exist yet.
@@ -115,22 +138,13 @@ default. No settings UI for toggling categories yet.
 Game state renders as ClassicUO Gumps; app chrome as Unity UI. See
 `docs/architecture/HOLLOWMERE_UI_RENDERING_STRATEGY.md`.
 
-## Current development priorities
-
-**Approved next:** Issue **#25B** — `HudLayoutService` (profile resolution,
-default profile registration, variant fallback, migration orchestration). Host
-must consume the service, not embed layout policy.
-
 ## Recently completed work
 
-Issue **#25A** — HUD foundation assemblies and permanent EditMode tests; no
-scene or gameplay integration.
+Through commit `e4397f6`: Issue **#26** (`HudWidgetHost`, presenter registry,
+Primary Action migration), **#27** (Action Bar migration), **#29** (Vitals
+migration), **#28A** (PlayMode smoke-test harness — implemented/committed,
+not fully validated; see "Validation status"), and fix **`ee89109`**
+(StateManager scene-reload reset).
 
-## Next milestone
-
-**Issue #25B — `HudLayoutService`.** Small infrastructure milestone: layout and
-profile resolution only. Then **#26 — `HudWidgetHost`** (coordination and
-rendering bridge). Primary Action migration remains a separate milestone after
-the host exists. See `docs/architecture/HUD_WIDGET_ARCHITECTURE.md` proposed
-milestones (numbers may differ from this sequencing — this file wins for current
-intent).
+Full engine/layer detail: `docs/architecture/HOLLOWMERE_ENGINE.md`,
+`docs/architecture/HUD_WIDGET_ARCHITECTURE.md`, `docs/architecture/ENGINE_STRUCTURE.md`.

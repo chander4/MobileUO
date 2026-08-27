@@ -1,55 +1,39 @@
 # Hollowmere AI Handoff
 
-This is a lightweight continuation snapshot, not an architectural source of truth. Read `AGENTS.md` and `PROJECT_STATE.md` first; update this file whenever a milestone changes hands or reaches a meaningful stopping point.
-
-## Current branch and release
-
-- **Branch:** `controls-update`
-- **Last released tag:** `v0.2.0-mobile-foundation` (`aff5e8a`)
-- **Working-tree status:** confirm with `git status` before relying on this line.
-
 ## Current milestone
 
-**Issue #25A is complete** (HUD layout contract foundation). **Next approved work: Issue #25B** (`HudLayoutService`).
+**Issue #29 (Vitals) and Issue #28A (PlayMode smoke infrastructure) are implemented and committed** (`44b8d87`, `e4397f6`). Commit status is not the same as validation status — see Tests below.
 
-## Issue #25A — what exists now
+- **#29:** Vitals HUD widget (`hollowmere.vitals`) via `VitalsPresenter` + `PlayerVitalsGump` (wraps `HealthBarGumpCustom` for `World.Player`).
+- **#28A:** PlayMode smoke-test harness (`HudSmokeTestBridge` + `Hollowmere.HudRuntime.Tests`) — implemented, committed, and correctly discovered as PlayMode tests. Not fully validated.
 
-Renderer-neutral HUD infrastructure under `Assets/Scripts/Hollowmere/Hud/`:
+## HUD runtime wiring
 
-| Piece | Notes |
-|--------|--------|
-| `HudWidgetRegistry` | Stable IDs, aliases, deprecated tombstones, `Validate()` |
-| Profile model | `HudLayoutProfile`, variants, `HudWidgetState`, `HudWidgetSettings` |
-| Serialization | `HudLayoutProfileSerializer` — schema v1, migrate from v0 |
-| Placement | `HudPlacement`, `HudPlacementMath` (safe area, dock, snap, orientation transform) |
-| Storage | `IHudLayoutStorage`; `PlayerPrefsHudLayoutStorage` in `Hollowmere.Hud.Unity` |
+- **Composition:** `HudWidgetHostComposition` registers widgets and presenter factories.
+- **Gump presenters:** `PrimaryActionPresenter`, `ActionBarPresenter`, `VitalsPresenter` (`HudRuntime/Gumps/`).
+- **Legacy bootstraps disabled:** `PrimaryActionButtonBootstrap`, `ActionBarBootstrap` (`InstallDisabled`).
+- **OptionsGump** still uses `ActionBarBootstrap.Current` / `SetLayout` — set by `ActionBarPresenter` on materialize.
 
-**Tests:** `Assets/Tests/Hud/` — `Hollowmere.Hud.Tests` (EditMode). Suites: registry, profile, placement, storage contract (`InMemoryHudLayoutStorage`), migration fixtures. Run via Unity Test Runner; `com.unity.test-framework` is a direct package dependency.
+## Persistence
 
-**Not implemented:** `HudLayoutService`, `HudWidgetHost`, edit mode, presenters, any scene/bootstrap wiring. **No visible gameplay change.**
+- Action Bar **contents/layout/position:** `PlayerPrefsActionBarPersistence` + `ActionBarBootstrap.PersistenceKey` (unchanged).
+- HUD **layout profile:** `PlayerPrefsHudLayoutStorage` — default placement; merge from built-in template for missing widgets.
 
-**Serializer note:** `Migrate` / `Serialize` may mutate the input profile — TODO in `HudLayoutProfileSerializer`; do not redesign until host/service lifecycles exist.
+## Tests
 
-## Active work and blockers
+- **EditMode:** `Hollowmere.Hud.Tests` — required for HUD logic changes. Latest confirmed run: **39/39 passed, 0 failed, 0 skipped**.
+- **PlayMode (optional):** `Hollowmere.HudRuntime.Tests` category `HudRuntimeSmoke` — manual Test Runner only; not CI/blocking. Uses `HudSmokeTestBridge`. Per-test status (latest confirmed):
+  - `HudHost_Initializes` — **passed**.
+  - `Hud_Presenters_Created` — **passed** in a favorable in-game run.
+  - `Hud_NoDuplicateWidgets` — **not established as passing**.
+  - `Hud_NoDuplicates_AfterReload` — **not established as passing**.
+  - **#28A does not have a verified 4/4 PlayMode pass.** Tests Ignore (not fail) when the session isn't logged in past `BootState`/`GameScene`; the two unestablished tests above remain unresolved beyond that gating — see Known issues.
 
-None known for #25B. Architecture is accepted (`ADR-008`, `HUD_WIDGET_ARCHITECTURE.md`). Do not redesign unless implementation exposes a real flaw.
+## Known issues
 
-## Expected sequencing (product, not ClassicUO upstream)
+- **Fixed:** `ee89109 fix(core): reset state manager on scene reload` — #28A's `Hud_NoDuplicates_AfterReload` test reproduced a stale-`StateManager`/`MissingReferenceException` on a second `Init.Awake()` (scene reload). Root cause: `currentState`/`states` were never cleared across reload. Fixed via `StateManager.Reset()`, called first in `Init.Awake()`.
+- **Open, unresolved:** after the StateManager fix, the reload path progresses further and now exposes a separate `ClientRunner`/`UnityMainThreadDispatcher` lifecycle exception. Root cause **not yet confirmed**. This is a pre-existing production issue exposed by #28A's reload test, not a defect in #28A itself. `ClientRunner` is a Protected system (see `CLAUDE.md`) — requires explicit approval before investigation or modification.
 
-1. **#25B** — `HudLayoutService` (defaults, variant fallback, profile resolution, migration decisions).
-2. **#26** — `HudWidgetHost` (lifecycle, geometry application; **consumes** layout service).
-3. **Later** — Primary Action migration as its own milestone (not bundled with host).
+## Next work
 
-HUD layout is **Hollowmere product architecture**, not ClassicUO engine work — do not propose widget registry / mobile profiles upstream.
-
-## Protected systems
-
-Do not change `ClientRunner` movement logic, Networking, packet serialization, or the asset-loading pipeline without explicit approval. Authoritative lists: `DECISIONS.md`, `CLAUDE.md`.
-
-## Diagnostics state
-
-`Hollowmere.Diagnostics.Diag` — categories off by default (`ADR-005`). No active diagnostics milestone.
-
-## Files to read before #25B
-
-`docs/architecture/HUD_WIDGET_ARCHITECTURE.md` (§6 `HudLayoutService`, §13 variant fallback), `DECISIONS.md` (HUD widget system), `docs/development/TESTING_STRATEGY.md`.
+Immediate priority: triage the remaining PlayMode validation gap and decide whether the `ClientRunner`/`UnityMainThreadDispatcher` issue needs investigation before treating the HUD checkpoint as fully validated (Protected-system change — needs explicit approval). Migrating additional widgets or shipping edit mode is secondary until that decision is made. Do not redesign `HudWidgetHost` / `HudLayoutService` without a proven flaw.
