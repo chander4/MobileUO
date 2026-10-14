@@ -24,6 +24,10 @@ namespace Hollowmere.Hud.Unity
 
         public static int StatsLiveInstances { get; private set; }
 
+        public static int StatusEffectsLiveInstances { get; private set; }
+
+        public static int TargetVitalsLiveInstances { get; private set; }
+
         public static void RegisterPrimaryActionLive(int delta)
         {
             PrimaryActionLiveInstances = System.Math.Max(0, PrimaryActionLiveInstances + delta);
@@ -42,6 +46,16 @@ namespace Hollowmere.Hud.Unity
         public static void RegisterStatsLive(int delta)
         {
             StatsLiveInstances = System.Math.Max(0, StatsLiveInstances + delta);
+        }
+
+        public static void RegisterTargetVitalsLive(int delta)
+        {
+            TargetVitalsLiveInstances = System.Math.Max(0, TargetVitalsLiveInstances + delta);
+        }
+
+        public static void RegisterStatusEffectsLive(int delta)
+        {
+            StatusEffectsLiveInstances = System.Math.Max(0, StatusEffectsLiveInstances + delta);
         }
 
         public static void NotifyHostCreated(HudWidgetHost host)
@@ -82,6 +96,7 @@ namespace Hollowmere.Hud.Unity
             ActionBarLiveInstances = 0;
             VitalsLiveInstances = 0;
             StatsLiveInstances = 0;
+            TargetVitalsLiveInstances = 0;
         }
     }
 }
