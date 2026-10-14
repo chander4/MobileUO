@@ -32,6 +32,16 @@ public class Init : MonoBehaviour
 
         UserPreferences.Initialize();
 
+        // Discards the previous ClassicUO engine session (if any) so a fresh Init.Awake()
+        // (e.g. after a scene reload) never leaves ClientRunner.Awake() reading a stale
+        // Client.Game pointing at a disposed GameController from the destroyed scene.
+        if (ClassicUO.Client.Game != null)
+        {
+            ClassicUO.Client.Game.UnloadContent();
+            ClassicUO.Client.Game.Dispose();
+            ClassicUO.Client.Game = null;
+        }
+
         StateManager.Reset();
         StateManager.AddState(new BootState());
         StateManager.AddState(new ServerConfigurationState(serverConfigurationUiParent));
