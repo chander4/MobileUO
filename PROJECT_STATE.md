@@ -6,7 +6,7 @@ convenient," as part of the milestone's own documentation step (see
 `git log`, but trust it more than a training-data assumption or a prior
 conversation's memory.
 
-Last updated: Issue #28A — PlayMode HUD smoke infrastructure (`e4397f6`, committed).
+Last updated: mobile targeting / overlay panels checkpoint (`3a978dd`..`27cb584`, committed, not re-validated in Unity — see "Validation status").
 Implementation/commit status is not the same as full validation — see
 "Validation status" below before assuming any HUD milestone is fully proven.
 
@@ -56,27 +56,36 @@ established.
   reproduced by #28A's `Hud_NoDuplicates_AfterReload` test; fixed via
   `StateManager.Reset()` called first in `Init.Awake()`.
 
+- **Mobile targeting & overlays (`3a978dd`..`27cb584`)** — world-tap
+  pinned selection (`WorldTapTargeting`), Target Vitals, Status effects (buff bar),
+  Stats widget, long-press context menu v1 ("Examine"), Backpack / Paperdoll /
+  Spell-Skill Unity UI panels, responsive HUD profiles, touch-isolation guard
+  (LeanTouch `GuiLayers` includes layer 0), joystick-walk fix, scene-reload engine
+  disposal in `Init.Awake()`. ADR-009 and ADR-010 added.
+
 **HUD runtime:** `HudWidgetHostComposition` + `HudRuntime/Gumps/*` presenters.
 
 ## Validation status
 
-- **EditMode:** `Hollowmere.Hud.Tests` — 39/39 passed, 0 failed, 0 skipped
-  (latest confirmed run).
+- **EditMode:** `Hollowmere.Hud.Tests` — 48/48 per the 2026-10-04 CLI session
+  (earlier confirmed run: 39/39). **Not re-run since the latest commits** (UnityMCP
+  was down).
 - **PlayMode:** `Hollowmere.HudRuntime.Tests` discovery confirmed (asmdef
   `includePlatforms: []`, correctly enumerated as PlayMode).
   - `HudHost_Initializes` — passed.
   - `Hud_Presenters_Created` — passed in a favorable in-game run.
   - `Hud_NoDuplicateWidgets` — not established as passing.
   - `Hud_NoDuplicates_AfterReload` — not established as passing.
+  - `LeanTouch_GuiLayers_IncludesDefaultLayer` — passed (2026-10-04 session).
   - Clean continuous 4/4 PlayMode validation remains outstanding.
 
 ## Current development priorities
 
-Migrate additional widgets or edit mode — not HUD foundation redesign.
+Validate the committed checkpoint in Unity (compile + EditMode + PlayMode), then edit mode / further widget migration — not HUD foundation redesign.
 
 ## Next milestone
 
-Planning: joystick/Unity widget adapter (per architecture) or edit mode.
+Planning: edit mode, or joystick/Unity widget adapter (per architecture), after validation.
 
 ## Current engine philosophy
 
@@ -98,7 +107,9 @@ by size/role heuristics, never actually read).
 - `README.md` is still the original upstream MobileUO README — does not
   reflect Hollowmere's identity.
 - **`ClientRunner`/`UnityMainThreadDispatcher` scene-reload lifecycle
-  exception — open, unresolved.** Exposed by #28A's `Hud_NoDuplicates_AfterReload`
+  exception — possibly fixed (`3a978dd`: dispose `Client.Game` in `Init.Awake()`,
+  dispatcher execution order -1000), unverified.** Re-run `Hud_NoDuplicates_AfterReload`
+  to confirm. Original note: Exposed by #28A's `Hud_NoDuplicates_AfterReload`
   test after `ee89109` fixed the earlier StateManager failure and let the
   reload path progress further. Root cause not yet confirmed. `ClientRunner`
   is a Protected system (see `CLAUDE.md`) — requires explicit approval before
