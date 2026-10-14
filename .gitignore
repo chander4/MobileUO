@@ -180,3 +180,7 @@ Assets/Scripts/ClassicUO/src/**
 *.keystore
 MobileUO2_BurstDebugInformation_DoNotShip/
 *.slnx
+
+# Local screenshots
+/Assets/Screenshots/
+/Assets/Screenshots.meta
