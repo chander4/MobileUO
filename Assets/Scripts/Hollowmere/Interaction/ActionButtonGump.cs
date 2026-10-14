@@ -35,6 +35,27 @@ namespace Hollowmere.Interaction
         // ClassicUO's own frame clock, the same source AnchorableGump/Control already use.
         private const uint LongPressMillis = 500;
 
+        // ADR-009 rule 6: this is the one authoritative declaration of the rendered/
+        // tappable button size - BuildGump() below is what actually sets Width/Height,
+        // everything else (ActionBarPresenter, PrimaryActionPresenter,
+        // BackpackTriggerBootstrap) only needs the number before this Gump exists to
+        // reserve layout space or compute a default position, so they reference these
+        // instead of re-declaring their own copy.
+        public const int ButtonWidth = 88;
+        public const int ButtonHeight = 44;
+
+        // Mobile Action Feedback v1: a brief tap-response flash, opt-in per
+        // instance (see tapFeedbackEnabled) so Action Bar's existing buttons -
+        // constructed without requesting it - render exactly as before. Reuses
+        // the same Texture2DCache/backgroundTexture/_hueVector machinery Draw()
+        // already relies on for hover/availability, rather than a second
+        // animation system; TryExecute()'s own return value (already the
+        // authoritative "did this run" signal) is all that's needed to tell
+        // success from blocked, so nothing new is asked of GameActionDefinition.
+        private const uint TapFeedbackDurationMs = 220;
+        private static readonly Color TapSuccessColor = new Color(90, 210, 100);
+        private static readonly Color TapBlockedColor = new Color(210, 70, 60);
+
         // #24: mutable (was readonly) so SetDefinition can swap the verb in place -
         // e.g. a context-sensitive primary-action button that re-labels itself as
         // Attack/Talk/Loot/Pick Up based on selection, without disposing/recreating
@@ -46,6 +67,11 @@ namespace Hollowmere.Interaction
         private Label label;
         private GumpPic icon;
         private uint mouseDownTick;
+
+        private readonly bool tapFeedbackEnabled;
+        private uint tapFeedbackStartTick;
+        private bool tapFeedbackHasFired;
+        private bool tapFeedbackWasSuccess;
 
         /// <summary>
         /// Set by whoever owns this button's lifecycle (ActionBar, for removable
@@ -86,16 +112,17 @@ namespace Hollowmere.Interaction
         /// </summary>
         public bool IsHovered { get; private set; }
 
-        public ActionButtonGump(GameActionDefinition definition, int x, int y, Color? barTint = null) : this(definition, barTint)
+        public ActionButtonGump(GameActionDefinition definition, int x, int y, Color? barTint = null, bool enableTapFeedback = false) : this(definition, barTint, enableTapFeedback)
         {
             X = x;
             Y = y;
             BuildGump();
         }
 
-        public ActionButtonGump(GameActionDefinition definition, Color? barTint = null) : base(0, 0)
+        public ActionButtonGump(GameActionDefinition definition, Color? barTint = null, bool enableTapFeedback = false) : base(0, 0)
         {
             this.definition = definition ?? throw new ArgumentNullException(nameof(definition));
+            tapFeedbackEnabled = enableTapFeedback;
 
             // Lets two bars (e.g. Main vs QuickChat) read as visually distinct at a
             // glance without needing a separate always-visible label Gump, which would
@@ -117,8 +144,8 @@ namespace Hollowmere.Interaction
 
         private void BuildGump()
         {
-            Width = 88;
-            Height = 44;
+            Width = ButtonWidth;
+            Height = ButtonHeight;
 
             RebuildContent();
 
@@ -279,6 +306,13 @@ namespace Hollowmere.Interaction
             bool executed = definition.TryExecute();
             if (Diag.IsEnabled(DiagCategory.UI))
                 Diag.Log(DiagCategory.UI, $"TryExecute={executed} label='{definition?.Label}'");
+
+            if (tapFeedbackEnabled)
+            {
+                tapFeedbackHasFired = true;
+                tapFeedbackWasSuccess = executed;
+                tapFeedbackStartTick = ClassicUO.Time.Ticks;
+            }
         }
 
         public override bool Draw(UltimaBatcher2D batcher, int x, int y)
@@ -286,7 +320,30 @@ namespace Hollowmere.Interaction
             ResetHueVector();
             _hueVector.Z = definition.IsAvailable ? 0.1f : 0.5f;
 
-            batcher.Draw2D(backgroundTexture, x, y, Width, Height, ref _hueVector);
+            Texture2D background = backgroundTexture;
+
+            // Brief tap-response flash: a color lerp from the success/blocked tint
+            // back to whatever the button would otherwise be showing (normal or
+            // hover), fading out linearly over TapFeedbackDurationMs. Self-expiring -
+            // once elapsed passes the duration this stops touching the draw call at
+            // all, so it never lingers or needs an explicit "reset" call from anyone.
+            if (tapFeedbackEnabled && tapFeedbackHasFired)
+            {
+                uint elapsed = ClassicUO.Time.Ticks - tapFeedbackStartTick;
+                if (elapsed < TapFeedbackDurationMs)
+                {
+                    float t = elapsed / (float) TapFeedbackDurationMs;
+                    Color flashColor = tapFeedbackWasSuccess ? TapSuccessColor : TapBlockedColor;
+                    Color settleColor = IsHovered ? hoverColor : normalColor;
+                    background = Texture2DCache.GetTexture(Color.Lerp(flashColor, settleColor, t));
+                }
+                else
+                {
+                    tapFeedbackHasFired = false;
+                }
+            }
+
+            batcher.Draw2D(background, x, y, Width, Height, ref _hueVector);
 
             _hueVector.Z = 0;
             batcher.DrawRectangle(Texture2DCache.GetTexture(Color.Gray), x, y, Width, Height, ref _hueVector);

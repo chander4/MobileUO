@@ -8,7 +8,8 @@ namespace Hollowmere.Interaction
         Attack,
         Talk,
         Loot,
-        PickUp
+        PickUp,
+        Use
     }
 
     /// <summary>

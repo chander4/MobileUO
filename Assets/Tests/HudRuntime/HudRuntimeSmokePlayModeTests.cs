@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Hollowmere.Hud;
 using Hollowmere.Hud.Unity;
+using Lean.Touch;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -99,6 +100,29 @@ namespace Hollowmere.HudRuntime.Tests
             Assert.That(HudSmokeTestBridge.PrimaryActionLiveInstances, Is.LessThanOrEqualTo(Mathf.Max(1, primaryBefore)));
             Assert.That(HudSmokeTestBridge.ActionBarLiveInstances, Is.LessThanOrEqualTo(Mathf.Max(1, barBefore)));
             Assert.That(HudSmokeTestBridge.VitalsLiveInstances, Is.LessThanOrEqualTo(Mathf.Max(1, vitalsBefore)));
+        }
+
+        // Mobile UI Touch Isolation v1: regression guard for the shared-root-cause bug
+        // where LeanTouch.PointOverGui (and therefore LeanFinger.StartedOverGui, and
+        // therefore WorldTapTargeting's UI exclusion AND MobileInputController's
+        // GetFingers(true, false) joystick-activation filter) silently stopped
+        // recognizing Backpack/Paperdoll/Spell-Skill Book - all built on layer 0
+        // (Default) - because the scene's LeanTouch component's GuiLayers mask was
+        // narrowed to layer 5 (UI) only. No login/world-entry required - LeanTouch
+        // exists in the scene from boot, independent of HUD/GameScene readiness.
+        [UnityTest]
+        public IEnumerator LeanTouch_GuiLayers_IncludesDefaultLayer()
+        {
+            yield return LoadActiveSceneIfNeeded();
+
+            LeanTouch leanTouch = Object.FindFirstObjectByType<LeanTouch>();
+            Assert.That(leanTouch, Is.Not.Null, "No LeanTouch component found in the scene.");
+
+            int defaultLayerBit = 1 << 0;
+            Assert.That(leanTouch.GuiLayers.value & defaultLayerBit, Is.Not.EqualTo(0),
+                "LeanTouch.GuiLayers must include layer 0 (Default) - the layer Backpack/" +
+                "Paperdoll/Spell-Skill Book panels are built on - or PointOverGui silently " +
+                "stops protecting those overlays from world-tap/joystick input underneath them.");
         }
 
         private static IEnumerator LoadActiveSceneIfNeeded()

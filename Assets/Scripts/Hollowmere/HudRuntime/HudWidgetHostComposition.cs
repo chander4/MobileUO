@@ -44,7 +44,15 @@ namespace Hollowmere.HudRuntime
                     HudWidgetRendererKind.Gump,
                     HudWidgetCapabilities.Movable | HudWidgetCapabilities.Hideable));
                 registry.Register(new HudWidgetDefinition(
+                    HudWidgetIds.StatusEffects,
+                    HudWidgetRendererKind.Gump,
+                    HudWidgetCapabilities.Movable | HudWidgetCapabilities.Hideable));
+                registry.Register(new HudWidgetDefinition(
                     HudWidgetIds.Stats,
+                    HudWidgetRendererKind.Gump,
+                    HudWidgetCapabilities.Movable | HudWidgetCapabilities.Hideable));
+                registry.Register(new HudWidgetDefinition(
+                    HudWidgetIds.TargetVitals,
                     HudWidgetRendererKind.Gump,
                     HudWidgetCapabilities.Movable | HudWidgetCapabilities.Hideable));
 
@@ -59,8 +67,14 @@ namespace Hollowmere.HudRuntime
                     HudWidgetIds.Vitals,
                     definition => new VitalsPresenter(definition));
                 presenterRegistry.Register(
+                    HudWidgetIds.StatusEffects,
+                    definition => new BuffBarPresenter(definition));
+                presenterRegistry.Register(
                     HudWidgetIds.Stats,
                     definition => new StatsPresenter(definition));
+                presenterRegistry.Register(
+                    HudWidgetIds.TargetVitals,
+                    definition => new TargetVitalsPresenter(definition));
 
                 registry.Validate();
 

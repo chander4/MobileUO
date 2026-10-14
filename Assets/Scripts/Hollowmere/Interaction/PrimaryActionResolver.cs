@@ -14,8 +14,22 @@ namespace Hollowmere.Interaction
     /// </summary>
     internal static class PrimaryActionResolver
     {
-        public static PrimaryAction Resolve(BaseGameObject selected)
+        // Backpack selection takes priority over whatever's selected in the world -
+        // if the player is actively engaging with the backpack panel (a modal), that's
+        // the clearer signal of intent. Takes a plain serial, not a BackpackPresenter
+        // reference, so this stays a pure function of its inputs like Resolve always
+        // has been; the caller (PrimaryActionPresenter) is responsible for gathering
+        // both selection sources. Default parameter keeps the original 1-arg call
+        // sites (e.g. the legacy PrimaryActionButtonBootstrap) compiling unchanged.
+        public static PrimaryAction Resolve(BaseGameObject selected, uint? backpackSelectedSerial = null)
         {
+            if (backpackSelectedSerial.HasValue
+                && World.Get(backpackSelectedSerial.Value) is Item backpackItem
+                && !backpackItem.IsDestroyed)
+            {
+                return new PrimaryAction(PrimaryActionType.Use, backpackItem);
+            }
+
             if (selected is Item corpse && corpse.IsCorpse && !corpse.IsDestroyed)
             {
                 return new PrimaryAction(PrimaryActionType.Loot, corpse);
@@ -41,7 +55,9 @@ namespace Hollowmere.Interaction
         // legal/criminal-flagging consequences server-side regardless of what this
         // predicted, so a wrong guess here is a UX rough edge, not a new way to
         // accidentally flag criminal or attack the wrong thing.
-        private static bool IsHostile(NotorietyFlag flag)
+        // internal, not private: #34's NearestThreatFinder reuses the same
+        // classification rather than duplicating it.
+        internal static bool IsHostile(NotorietyFlag flag)
         {
             return flag == NotorietyFlag.Gray
                 || flag == NotorietyFlag.Criminal

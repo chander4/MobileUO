@@ -3,7 +3,8 @@
   "rootNamespace": "Hollowmere.HudRuntime.Tests",
   "references": [
     "Hollowmere.Hud",
-    "Hollowmere.Hud.Unity"
+    "Hollowmere.Hud.Unity",
+    "Lean.Touch"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

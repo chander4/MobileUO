@@ -15,8 +15,6 @@ namespace Hollowmere.HudRuntime.Gumps
     /// </summary>
     public sealed class ActionBarPresenter : IHudWidgetPresenter, IHudWidgetPresenterTick
     {
-        public const int ButtonWidth = 88;
-        public const int ButtonHeight = 44;
         private const float MaxRowWidthFraction = 0.45f;
 
         private readonly string widgetId;
@@ -36,7 +34,7 @@ namespace Hollowmere.HudRuntime.Gumps
 
         public string WidgetId => widgetId;
 
-        public HudSize GetIntrinsicSize() => new HudSize(ButtonWidth, ButtonHeight);
+        public HudSize GetIntrinsicSize() => new HudSize(ActionButtonGump.ButtonWidth, ActionButtonGump.ButtonHeight);
 
         public void Apply(HudResolvedWidgetLayout layout)
         {
@@ -109,7 +107,7 @@ namespace Hollowmere.HudRuntime.Gumps
             int viewportWidth = ClassicUO.Client.Game.Window.ClientBounds.Width;
             int defaultX = (int)Math.Round(bounds.X);
             int defaultY = (int)Math.Round(bounds.Y);
-            int maxPerRow = Mathf.Max(1, Mathf.FloorToInt(viewportWidth * MaxRowWidthFraction / ButtonWidth));
+            int maxPerRow = Mathf.Max(1, Mathf.FloorToInt(viewportWidth * MaxRowWidthFraction / ActionButtonGump.ButtonWidth));
 
             bar = new ActionBar(
                 ActionBarBootstrap.PersistenceKey,
@@ -128,6 +126,36 @@ namespace Hollowmere.HudRuntime.Gumps
                     "Target Last",
                     TargetManager.TargetLast,
                     () => TargetManager.IsTargeting));
+
+            // #34: re-engage whoever was last attacked, distinct from "Target Last" above
+            // (which only answers a currently-pending server target-cursor - see
+            // TargetManager.TargetLast). GameActions.Attack already maintains
+            // TargetManager.LastAttack itself; this only observes it. Validity re-checked
+            // every frame via canExecute rather than trusted forever - a last-attacked
+            // serial can go stale (target died/left range) with no engine notification.
+            bar.AddButton(
+                new GameActionDefinition(
+                    "Attack Last",
+                    () => ClassicUO.Game.GameActions.Attack(TargetManager.LastAttack),
+                    () => TargetManager.LastAttack != 0
+                        && ClassicUO.Game.World.Get(TargetManager.LastAttack) is ClassicUO.Game.GameObjects.Mobile lastAttackMobile
+                        && !lastAttackMobile.IsDestroyed));
+
+            // #34: precisely tapping a small, moving enemy on a touchscreen is hard,
+            // especially mid-fight - this fires on whatever NearestThreatFinder already
+            // identifies as the closest hostile threat, no selection tap required.
+            bar.AddButton(
+                new GameActionDefinition(
+                    "Attack Nearest",
+                    () =>
+                    {
+                        var nearest = NearestThreatFinder.FindNearest();
+                        if (nearest != null)
+                        {
+                            ClassicUO.Game.GameActions.Attack(nearest.Serial);
+                        }
+                    },
+                    () => NearestThreatFinder.FindNearest() != null));
 
             bar.AddButton(new GameActionDefinition("+", () => ActionPickerPresenter.Instance?.Open(bar)));
 

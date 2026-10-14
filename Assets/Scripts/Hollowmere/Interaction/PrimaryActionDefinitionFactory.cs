@@ -1,6 +1,7 @@
 using ClassicUO.Game;
 using ClassicUO.Game.GameObjects;
 using Hollowmere.Diagnostics;
+using Hollowmere.HudRuntime;
 
 namespace Hollowmere.Interaction
 {
@@ -31,6 +32,8 @@ namespace Hollowmere.Interaction
                     return BuildLoot((Item) action.Target);
                 case PrimaryActionType.PickUp:
                     return BuildPickUp((Item) action.Target);
+                case PrimaryActionType.Use:
+                    return BuildUse((Item) action.Target);
                 default:
                     return Neutral;
             }
@@ -57,6 +60,12 @@ namespace Hollowmere.Interaction
             SelectedObject.Object = null;
             SelectedObject.LastObject = null;
             SelectedObject.LastLeftDownObject = null;
+
+            // WorldTapTargeting re-pins whatever it captured every frame (mobile
+            // taps have no persistent hover to naturally clear on their own) -
+            // without this, the pin would restore the just-cleared selection on
+            // the very next frame, breaking the one-shot behavior above.
+            WorldTapTargeting.ClearPin();
         }
 
         private static GameActionDefinition BuildAttack(Mobile mobile)
@@ -71,6 +80,15 @@ namespace Hollowmere.Interaction
                     if (Diag.IsEnabled(DiagCategory.Actions))
                         Diag.Log(DiagCategory.Actions, $"Attack firing, serial={serial}");
                     GameActions.Attack(serial);
+
+                    // Mobile Combat Feedback v1: ClearSelection() below removes the
+                    // persistent target ring/info this same frame, so "who got hit"
+                    // would otherwise vanish instantly. This is a short, independent
+                    // pulse keyed to the mobile reference itself (still valid/alive -
+                    // only the *selection* is clearing, not the target), not to
+                    // WorldTapTargeting.CurrentSelection, so it survives the clear.
+                    WorldEntityScreenAnchor.TriggerAttackFeedback(mobile);
+
                     ClearSelection();
                 },
                 tooltip: $"Attack {targetName}");
@@ -134,6 +152,28 @@ namespace Hollowmere.Interaction
                 },
                 canExecute: () => !item.IsDestroyed && !item.IsLocked && item.Distance <= Constants.DRAG_ITEMS_DISTANCE,
                 tooltip: $"Pick up {itemName}");
+        }
+
+        // Same DoubleClick the Backpack panel's own Use button fires (see
+        // BackpackPresenter.UseSelected) - reuses BackpackPresenter.CloseDetail()
+        // directly instead of re-implementing that cleanup here, so the backpack's
+        // selection highlight/detail panel end up in the same state either way.
+        private static GameActionDefinition BuildUse(Item item)
+        {
+            uint serial = item.Serial;
+            string itemName = string.IsNullOrEmpty(item.Name) ? "item" : item.Name;
+
+            return new GameActionDefinition(
+                "Use",
+                () =>
+                {
+                    if (Diag.IsEnabled(DiagCategory.Actions))
+                        Diag.Log(DiagCategory.Actions, $"Use firing (Primary Action), serial={serial}");
+                    GameActions.DoubleClick(serial);
+                    BackpackPresenter.Instance?.CloseDetail();
+                },
+                canExecute: () => !item.IsDestroyed,
+                tooltip: $"Use {itemName}");
         }
     }
 }

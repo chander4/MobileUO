@@ -6,6 +6,7 @@ using ClassicUO.Game.Scenes;
 using Hollowmere.Hud;
 using Hollowmere.Hud.Unity;
 using Hollowmere.Interaction;
+using Microsoft.Xna.Framework;
 
 namespace Hollowmere.HudRuntime.Gumps
 {
@@ -15,12 +16,14 @@ namespace Hollowmere.HudRuntime.Gumps
     /// </summary>
     public sealed class PrimaryActionPresenter : IHudWidgetPresenter, IHudWidgetPresenterTick
     {
-        public const int ButtonWidth = 88;
-        public const int ButtonHeight = 44;
+        // Muted brick-red - distinct from ActionButtonGump's default dark-gray tint
+        // and from ActionBar's own tint, without being a jarring saturated color.
+        private static readonly Color PrimaryActionTint = new Color(120, 35, 30);
 
         private readonly string widgetId;
         private ActionButtonGump button;
         private BaseGameObject lastSeenSelection;
+        private uint? lastSeenBackpackSerial;
         private bool lastItemHoldEnabled;
 
         public static int LiveInstanceCount { get; private set; }
@@ -37,7 +40,7 @@ namespace Hollowmere.HudRuntime.Gumps
 
         public string WidgetId => widgetId;
 
-        public HudSize GetIntrinsicSize() => new HudSize(ButtonWidth, ButtonHeight);
+        public HudSize GetIntrinsicSize() => new HudSize(ActionButtonGump.ButtonWidth, ActionButtonGump.ButtonHeight);
 
         public void Apply(HudResolvedWidgetLayout layout)
         {
@@ -86,12 +89,17 @@ namespace Hollowmere.HudRuntime.Gumps
                 return;
             }
 
-            BaseGameObject current = SelectedObject.LastObject;
+            BaseGameObject current = WorldTapTargeting.CurrentSelection;
+            uint? backpackSerial = BackpackPresenter.SelectedSerial;
 
-            if (!ReferenceEquals(current, lastSeenSelection))
+            // Re-resolve on either source changing - world selection alone isn't
+            // enough, since tapping a backpack item while nothing's selected in the
+            // world (the common case) leaves SelectedObject.LastObject unchanged.
+            if (!ReferenceEquals(current, lastSeenSelection) || backpackSerial != lastSeenBackpackSerial)
             {
                 lastSeenSelection = current;
-                PrimaryAction action = PrimaryActionResolver.Resolve(current);
+                lastSeenBackpackSerial = backpackSerial;
+                PrimaryAction action = PrimaryActionResolver.Resolve(current, backpackSerial);
                 button.SetDefinition(PrimaryActionDefinitionFactory.Create(action));
             }
         }
@@ -113,13 +121,22 @@ namespace Hollowmere.HudRuntime.Gumps
                 return;
             }
 
-            PrimaryAction initial = PrimaryActionResolver.Resolve(SelectedObject.LastObject);
-            lastSeenSelection = SelectedObject.LastObject;
+            lastSeenBackpackSerial = BackpackPresenter.SelectedSerial;
+            BaseGameObject current = WorldTapTargeting.CurrentSelection;
+            PrimaryAction initial = PrimaryActionResolver.Resolve(current, lastSeenBackpackSerial);
+            lastSeenSelection = current;
 
             int x = (int)Math.Round(bounds.X);
             int y = (int)Math.Round(bounds.Y);
 
-            button = new ActionButtonGump(PrimaryActionDefinitionFactory.Create(initial), x, y);
+            // Mobile UX slice: a distinct tint (existing ActionButtonGump/ActionBar
+            // parameter, not a new capability) so this reads as *the* primary button
+            // rather than one more Action Bar entry - "clearly accessible" without
+            // resizing the Gump rendering shared with ActionBar's own buttons.
+            // Mobile Action Feedback v1: enableTapFeedback is opt-in per instance -
+            // only Primary Action requests it, so Action Bar's own buttons (built
+            // without this argument) render exactly as they did before.
+            button = new ActionButtonGump(PrimaryActionDefinitionFactory.Create(initial), x, y, PrimaryActionTint, enableTapFeedback: true);
             button.CanMove = false;
             UIManager.Add(button);
             LiveInstanceCount++;
@@ -136,6 +153,7 @@ namespace Hollowmere.HudRuntime.Gumps
             button.Dispose();
             button = null;
             lastSeenSelection = null;
+            lastSeenBackpackSerial = null;
             LiveInstanceCount = Math.Max(0, LiveInstanceCount - 1);
             HudSmokeTestBridge.RegisterPrimaryActionLive(-1);
         }
