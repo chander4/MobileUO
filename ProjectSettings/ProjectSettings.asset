@@ -896,7 +896,7 @@ PlayerSettings:
   webGLCloseOnQuit: 0
   webWasm2023: 0
   scriptingDefineSymbols:
-    Android: ENABLE_INTERNAL_ASSISTANT;SENTIS_ANALYTICS_ENABLED
+    Android: ENABLE_INTERNAL_ASSISTANT;APP_UI_EDITOR_ONLY;SENTIS_ANALYTICS_ENABLED
     Standalone: SENTIS_ANALYTICS_ENABLED
     iPhone: ENABLE_INTERNAL_ASSISTANT
   additionalCompilerArguments: {}
