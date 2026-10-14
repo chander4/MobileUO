@@ -27,19 +27,20 @@
 
 ## Tests
 
-- **EditMode:** `Hollowmere.Hud.Tests` — required for HUD logic changes. Last confirmed run: **48/48 passed** — as reported by the previous CLI session (2026-10-04). **Not re-run since the commits above; UnityMCP was down when they were made.**
+- **EditMode:** `Hollowmere.Hud.Tests` — required for HUD logic changes. Last run 2026-10-13 (batch mode, Unity 6000.0.79f1, against `3700638`): **48/48 passed, 0 failed, 0 skipped**; project compiled with no CS errors.
 - **PlayMode (optional):** `Hollowmere.HudRuntime.Tests` category `HudRuntimeSmoke` — manual Test Runner only; not CI/blocking. Uses `HudSmokeTestBridge`. Per-test status (latest confirmed):
   - `HudHost_Initializes` — **passed**.
   - `Hud_Presenters_Created` — **passed** in a favorable in-game run.
   - `Hud_NoDuplicateWidgets` — **not established as passing**.
   - `Hud_NoDuplicates_AfterReload` — **not established as passing**.
-  - New: `LeanTouch_GuiLayers_IncludesDefaultLayer` — 1/1 passed per the 2026-10-04 session (transient flake on first run after a live session, stable on two reruns).
+  - New: `LeanTouch_GuiLayers_IncludesDefaultLayer` — **passed** (2026-10-04 and again 2026-10-13).
+  - 2026-10-13 PlayMode run while **not logged in**: 5 total, 2 passed (`HudHost_Initializes`, `LeanTouch_GuiLayers_IncludesDefaultLayer`), 0 failed, **3 skipped** (the three in-game tests, "GameScene HUD presenters were not ready"). Skipped is not passed — log in, enter the world, and re-run.
   - **#28A does not have a verified 4/4 PlayMode pass.** Tests Ignore (not fail) when the session isn't logged in past `BootState`/`GameScene`; the two unestablished tests above remain unresolved beyond that gating — see Known issues.
 
 ## Known issues
 
 - **Fixed:** `ee89109 fix(core): reset state manager on scene reload` — #28A's `Hud_NoDuplicates_AfterReload` test reproduced a stale-`StateManager`/`MissingReferenceException` on a second `Init.Awake()` (scene reload). Root cause: `currentState`/`states` were never cleared across reload. Fixed via `StateManager.Reset()`, called first in `Init.Awake()`.
-- **Possibly fixed, unverified:** `3a978dd` makes `Init.Awake()` dispose the prior `Client.Game` (UnloadContent/Dispose/null) before `StateManager.Reset()`, and sets `UnityMainThreadDispatcher` execution order to -1000. This targets the stale-`Client.Game` read in `ClientRunner.Awake()` below, but `Hud_NoDuplicates_AfterReload` has not been re-run to confirm. Note it touches the Protected `ClientRunner` lifecycle indirectly — get approval/review before building on it.
+- **Possibly fixed, unverified:** `3a978dd` makes `Init.Awake()` dispose the prior `Client.Game` (UnloadContent/Dispose/null) before `StateManager.Reset()`, and sets `UnityMainThreadDispatcher` execution order to -1000. This targets the stale-`Client.Game` read in `ClientRunner.Awake()` below, but `Hud_NoDuplicates_AfterReload` was **skipped** (not logged in) on 2026-10-13, so it is still unconfirmed. Note it touches the Protected `ClientRunner` lifecycle indirectly — get approval/review before building on it.
 - **Original report, now possibly addressed:** after the StateManager fix, the reload path progresses further and now exposes a separate `ClientRunner`/`UnityMainThreadDispatcher` lifecycle exception. Root cause **not yet confirmed**. This is a pre-existing production issue exposed by #28A's reload test, not a defect in #28A itself. `ClientRunner` is a Protected system (see `CLAUDE.md`) — requires explicit approval before investigation or modification.
 
 ## Next work

@@ -67,16 +67,18 @@ established.
 
 ## Validation status
 
-- **EditMode:** `Hollowmere.Hud.Tests` — 48/48 per the 2026-10-04 CLI session
-  (earlier confirmed run: 39/39). **Not re-run since the latest commits** (UnityMCP
-  was down).
+- **EditMode:** `Hollowmere.Hud.Tests` — 48/48 passed, 0 failed, 0 skipped — re-run 2026-10-13 in
+  batch mode (Unity 6000.0.79f1) against `3700638`; project compiled with no CS errors.
 - **PlayMode:** `Hollowmere.HudRuntime.Tests` discovery confirmed (asmdef
   `includePlatforms: []`, correctly enumerated as PlayMode).
   - `HudHost_Initializes` — passed.
   - `Hud_Presenters_Created` — passed in a favorable in-game run.
   - `Hud_NoDuplicateWidgets` — not established as passing.
   - `Hud_NoDuplicates_AfterReload` — not established as passing.
-  - `LeanTouch_GuiLayers_IncludesDefaultLayer` — passed (2026-10-04 session).
+  - `LeanTouch_GuiLayers_IncludesDefaultLayer` — passed (re-confirmed 2026-10-13 via UnityMCP).
+  - 2026-10-13 PlayMode run, not logged in: 5 tests, 2 passed, 0 failed, 3 skipped
+    (`Hud_Presenters_Created`, `Hud_NoDuplicateWidgets`, `Hud_NoDuplicates_AfterReload` —
+    "GameScene HUD presenters were not ready"). Skipped, not passed; needs an in-game run.
   - Clean continuous 4/4 PlayMode validation remains outstanding.
 
 ## Current development priorities
